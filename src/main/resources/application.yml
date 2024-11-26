@@ -1,0 +1,36 @@
+
+api:
+  dashboard-link: example.com
+
+server:
+  port: ${REST_API_PORT:8080}
+  allowedOriginsPatterns: ${ALLOWED_ORIGINS_PATTERNS}
+
+springdoc:
+  api-docs:
+    enabled: ${ENABLE_SPRING_DOCS:false}
+  swagger-ui:
+    enabled: ${ENABLE_SPRING_DOCS:false}
+
+spring:
+  datasource:
+    url: "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB_NAME}"
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+
+  data:
+    mongodb:
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      username: ${MONGO_USERNAME}
+      password: ${MONGO_PASSWORD}
+      database: ${MONGO_DB_NAME}
+      authentication-database: ${MONGO_AUTH_DB:admin}
+      uuid-representation: STANDARD

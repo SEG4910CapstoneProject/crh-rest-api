@@ -1,0 +1,12 @@
+
+api:
+  dashboard-link: example.com
+
+server:
+  allowedOriginsPatterns: "*"
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true

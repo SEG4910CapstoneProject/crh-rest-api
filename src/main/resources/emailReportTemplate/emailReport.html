@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <style media="screen">
+            body {
+                color: white;
+                margin: 0;
+                padding: 0;
+            }
+
+/* HEADER STYLES */
+            .header-container {
+                background-color: rgba(34,76,152,1);
+
+                display: flex;
+                flex-direction: column;
+                justify-content: start;
+                align-items: stretch;
+            }
+            .header-title {
+                margin-bottom: 1.5rem;
+                font-size: 2.5rem;
+                text-align: center;
+            }
+            .header-link-container {
+                height: 1.5rem;
+
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-end;
+                align-items: center;
+            }
+            .header-link-container a:visited {
+                color: white;
+            }
+            .header-link {
+                margin: 0 0.25rem;
+            }
+
+
+/* STAT STYLES */
+            .stat-list-container {
+                margin-top: 2rem;
+
+                display: flex;
+                flex-flow: row wrap;
+                justify-content: space-evenly;
+                gap: 1rem;
+            }
+            .stat-container {
+                background-color: rgba(34,76,152,1);
+                height: 10rem;
+                width: 10rem;
+                border-radius: 1.5rem;
+                box-shadow: 0 0.25rem 1rem 0 rgba(0, 0, 0, 0.5);
+
+                display: flex;
+                flex-direction: column;
+                justify-content: space-evenly;
+                align-items: center;
+            }
+            .stat-title {
+                font-size: 1.5rem;
+            }
+            .stat-num {
+                font-size: 5rem;
+            }
+
+/* CATEGORY STYLES */
+            .category-list-container {}
+            .category-container {}
+            .category-container a:visited {
+                color: black;
+            }
+            .category-header-container {
+                background-color: rgba(34,76,152,1);
+                height: 3rem;
+                margin-top: 2rem;
+
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+            }
+            .category-header-title {
+                font-size: 2rem;
+            }
+
+/* ARTICLE STYLES */
+            .article-list-container {
+                padding: 0 1rem;
+            }
+            .article-container {
+                width: 100%;
+                color: black;
+
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                gap: 0.25em;
+            }
+            .article-title {
+                margin-top: 0.75rem;
+                font-size: 1.25rem;
+            }
+
+/* FOOTER STYLES */
+            .footer-container {
+                margin-top: 3rem;
+                height: 2rem;
+                background-color: rgba(34,76,152,1);
+
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+            }
+            .footer-container a:visited {
+                color: white;
+            }
+            .footer-link {
+                margin: 0 0.25rem;
+            }
+        </style>
+    </head>
+    <body>
+<!-- HEADER START -->
+        <div class="header-container">
+
+            <div class="header-link-container">
+                <a class="header-link" href="{{LINK-TO-DASHBOARD}}">View from dashboard</a>
+            </div>
+
+            <span class="header-title">CyberSecurity Threat Report</span>
+        </div>
+<!-- HEADER END -->
+
+<!-- STAT LIST START -->
+        <div class="stat-list-container">
+            {{STAT-LIST}}
+        </div>
+<!-- STAT LIST END -->
+
+<!-- CATEGORY LIST START -->
+        <div class="category-list-container">
+            {{CATEGORY-LIST}}
+        </div>
+<!-- CATEGORY LIST END -->
+
+<!-- FOOTER START -->
+        <div class="footer-container">
+            <a class="footer-link" href="{{LINK-TO-DASHBOARD}}">View from dashboard</a>
+        </div>
+<!-- FOOTER END -->
+    </body>
+</html>
