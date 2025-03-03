@@ -35,4 +35,7 @@ public interface DbArticlesService {
             UUID articleId, String title, String link, String description, Instant publishDate);
 
     Map<UUID, CategoryEntity> getArticleToCategoryEntityMap(Collection<UUID> articleIds);
+
+    public List<JsonArticleReportResponse> getArticlesByType(String type);
+
 }

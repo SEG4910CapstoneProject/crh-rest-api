@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -161,5 +162,14 @@ public class ArticleApiController {
                 publishDate.atStartOfDay().toInstant(ZoneOffset.UTC));
 
         return ResponseEntity.ok(new UidResponse(uuid.toString()));
+    }
+
+    @GetMapping("/type/{type}")
+    public ResponseEntity<List<JsonArticleReportResponse>> getArticlesByType(@PathVariable String type) {
+        List<JsonArticleReportResponse> articles = dbArticlesService.getArticlesByType(type);
+        if (articles.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(articles);
     }
 }

@@ -4,6 +4,7 @@ import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
 import me.t65.reportgenapi.db.postgres.entities.*;
+import me.t65.reportgenapi.db.postgres.entities.id.ArticleTypeEntity;
 import me.t65.reportgenapi.db.postgres.entities.id.ReportArticlesId;
 import me.t65.reportgenapi.db.postgres.repository.*;
 import me.t65.reportgenapi.generators.JsonArticleGenerator;
@@ -35,6 +36,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     private final IOCArticlesEntityRepository iocArticlesEntityRepository;
     private final ArticleCategoryRepository articleCategoryRepository;
     private final CategoryRepository categoryRepository;
+    private final ArticleTypeRepository articleTypeRepository;
     private final JsonArticleGenerator jsonArticleGenerator;
     private final DbEntitiesUtils dbEntitiesUtils;
     private final DateService dateService;
@@ -49,6 +51,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             IOCArticlesEntityRepository iocArticlesEntityRepository,
             ArticleCategoryRepository articleCategoryRepository,
             CategoryRepository categoryRepository,
+            ArticleTypeRepository articleTypeRepository,
             JsonArticleGenerator jsonArticleGenerator,
             DbEntitiesUtils dbEntitiesUtils,
             DateService dateService) {
@@ -60,6 +63,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         this.iocArticlesEntityRepository = iocArticlesEntityRepository;
         this.articleCategoryRepository = articleCategoryRepository;
         this.categoryRepository = categoryRepository;
+        this.articleTypeRepository = articleTypeRepository;
         this.jsonArticleGenerator = jsonArticleGenerator;
         this.dbEntitiesUtils = dbEntitiesUtils;
         this.dateService = dateService;
@@ -387,4 +391,27 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                                                         .getArticleCategoryId()
                                                         .getCategoryId())));
     }
+
+
+    @Override
+    public List<JsonArticleReportResponse> getArticlesByType(String type) {
+        List<ArticleTypeEntity> articleTypeEntities = articleTypeRepository.findByArticleType(type);
+
+        if (articleTypeEntities.isEmpty()) {
+            return Collections.emptyList(); 
+        }
+
+        List<UUID> articleIds = articleTypeEntities.stream()
+                .map(ArticleTypeEntity::getArticleId)
+                .collect(Collectors.toList());
+
+        List<JsonArticleReportResponse> articleResponses = new ArrayList<>();
+        for (UUID articleId : articleIds) {
+            Optional<JsonArticleReportResponse> articleResponse = getArticleById(articleId);
+            articleResponse.ifPresent(articleResponses::add);
+        }
+
+        return articleResponses;
+    }
+
 }
