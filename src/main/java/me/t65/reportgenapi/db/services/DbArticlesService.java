@@ -38,4 +38,6 @@ public interface DbArticlesService {
 
     public List<JsonArticleReportResponse> getArticlesByType(String type);
 
-}
+    public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days);
+
+    }

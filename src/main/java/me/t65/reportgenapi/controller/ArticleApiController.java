@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -172,4 +173,11 @@ public class ArticleApiController {
         }
         return ResponseEntity.ok(articles);
     }
+
+    @GetMapping("/article-types-with-articles")
+    public ResponseEntity<Map<String, List<JsonArticleReportResponse>>> getAllArticleTypesWithArticles(@RequestParam int days) {
+        Map<String, List<JsonArticleReportResponse>> response = dbArticlesService.getAllArticleTypesWithArticles(days);
+        return ResponseEntity.ok(response);
+    }
+
 }

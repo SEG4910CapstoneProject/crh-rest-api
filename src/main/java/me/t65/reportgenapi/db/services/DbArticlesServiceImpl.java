@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -398,7 +399,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         List<ArticleTypeEntity> articleTypeEntities = articleTypeRepository.findByArticleType(type);
 
         if (articleTypeEntities.isEmpty()) {
-            return Collections.emptyList(); 
+            return Collections.emptyList();
         }
 
         List<UUID> articleIds = articleTypeEntities.stream()
@@ -413,5 +414,48 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         return articleResponses;
     }
+
+
+    @Override
+    public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days) {
+        //Calculate the date range (X days ago from today)
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.minusDays(days);
+
+        List<ArticleTypeEntity> articleTypeEntities = articleTypeRepository.findAll();
+
+        if (articleTypeEntities.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<String, List<JsonArticleReportResponse>> articleTypeMap = new HashMap<>();
+
+        for (ArticleTypeEntity articleTypeEntity : articleTypeEntities) {
+            String articleType = articleTypeEntity.getArticleType();
+
+            List<UUID> articleIds = articleTypeEntities.stream()
+                    .filter(entity -> entity.getArticleType().equals(articleType))
+                    .map(ArticleTypeEntity::getArticleId)
+                    .collect(Collectors.toList());
+
+            List<JsonArticleReportResponse> articlesForType = new ArrayList<>();
+            for (UUID articleId : articleIds) {
+                Optional<JsonArticleReportResponse> articleResponse = getArticleById(articleId);
+                articleResponse.ifPresent(response -> {
+                    //Filter out articles that are not within the last 'days' number of days
+                    if (response.getPublishDate().isAfter(startDate)) {
+                        articlesForType.add(response);
+                    }
+                });
+            }
+
+            articlesForType.sort(Comparator.comparing(JsonArticleReportResponse::getPublishDate).reversed());
+
+            articleTypeMap.put(articleType, articlesForType);
+        }
+
+        return articleTypeMap;
+    }
+
 
 }
