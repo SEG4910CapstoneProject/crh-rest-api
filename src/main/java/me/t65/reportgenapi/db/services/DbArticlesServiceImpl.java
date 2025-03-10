@@ -414,11 +414,10 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         return articleResponses;
     }
-
+    
 
     @Override
     public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days) {
-        //Calculate the date range (X days ago from today)
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(days);
 
@@ -428,34 +427,21 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             return Collections.emptyMap();
         }
 
+        Set<String> uniqueArticleTypes = articleTypeEntities.stream()
+                .map(ArticleTypeEntity::getArticleType)
+                .collect(Collectors.toSet());
+
         Map<String, List<JsonArticleReportResponse>> articleTypeMap = new HashMap<>();
 
-        for (ArticleTypeEntity articleTypeEntity : articleTypeEntities) {
-            String articleType = articleTypeEntity.getArticleType();
-
-            List<UUID> articleIds = articleTypeEntities.stream()
-                    .filter(entity -> entity.getArticleType().equals(articleType))
-                    .map(ArticleTypeEntity::getArticleId)
+        for (String articleType : uniqueArticleTypes) {
+            List<JsonArticleReportResponse> articlesForType = getArticlesByType(articleType);
+            List<JsonArticleReportResponse> filteredArticles = articlesForType.stream()
+                    .filter(article -> article.getPublishDate().isAfter(startDate))
+                    .sorted(Comparator.comparing(JsonArticleReportResponse::getPublishDate).reversed())
                     .collect(Collectors.toList());
-
-            List<JsonArticleReportResponse> articlesForType = new ArrayList<>();
-            for (UUID articleId : articleIds) {
-                Optional<JsonArticleReportResponse> articleResponse = getArticleById(articleId);
-                articleResponse.ifPresent(response -> {
-                    //Filter out articles that are not within the last 'days' number of days
-                    if (response.getPublishDate().isAfter(startDate)) {
-                        articlesForType.add(response);
-                    }
-                });
-            }
-
-            articlesForType.sort(Comparator.comparing(JsonArticleReportResponse::getPublishDate).reversed());
-
-            articleTypeMap.put(articleType, articlesForType);
+            articleTypeMap.put(articleType, filteredArticles);
         }
-
         return articleTypeMap;
     }
-
 
 }
