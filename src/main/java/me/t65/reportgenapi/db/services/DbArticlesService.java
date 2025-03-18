@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
+import me.t65.reportgenapi.db.postgres.entities.ArticlesEntity;
 import me.t65.reportgenapi.db.postgres.entities.CategoryEntity;
 import me.t65.reportgenapi.db.postgres.entities.IOCEntity;
 
@@ -40,4 +41,7 @@ public interface DbArticlesService {
 
     public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days);
 
+    public Optional<ArticlesEntity> incrementArticleViewCount(UUID articleId);
+
+    public List<ArticlesEntity> getTop10MostViewedArticles();
     }

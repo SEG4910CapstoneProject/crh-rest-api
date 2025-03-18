@@ -414,7 +414,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         return articleResponses;
     }
-    
+
 
     @Override
     public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days) {
@@ -442,6 +442,16 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             articleTypeMap.put(articleType, filteredArticles);
         }
         return articleTypeMap;
+    }
+
+    public Optional<ArticlesEntity> incrementArticleViewCount(UUID articleId) {
+        Optional<ArticlesEntity> article = articlesRepository.findById(articleId);
+        article.ifPresent(a -> articlesRepository.incrementViewCount(a.getArticleId()));
+        return article;
+    }
+
+    public List<ArticlesEntity> getTop10MostViewedArticles() {
+        return articlesRepository.findTop10ByOrderByViewCountDesc();
     }
 
 }

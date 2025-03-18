@@ -35,4 +35,30 @@ public class ArticlesEntity {
 
     @Column(name = "hashlink")
     private long hashlink;
+
+    @Column(name = "view_count", nullable = false)
+    private int viewCount = 0;
+
+    public int getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(int viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public void incrementViewCount() {
+        this.viewCount++;
+    }
+
+    public ArticlesEntity(UUID articleId, Integer sourceId, Instant dateIngested, Instant datePublished, Boolean isFeatureExt, Boolean isMLExt, long hashlink) {
+        this.articleId = articleId;
+        this.sourceId = sourceId;
+        this.dateIngested = dateIngested;
+        this.datePublished = datePublished;
+        this.isFeatureExt = isFeatureExt;
+        this.isMLExt = isMLExt;
+        this.hashlink = hashlink;
+        this.viewCount = 0;
+    }
 }

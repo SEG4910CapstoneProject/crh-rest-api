@@ -151,7 +151,11 @@ public class ArticlesRepositoryStub implements ArticlesRepository {
     }
 
     @Override
-    public List<ArticlesEntity> findByHashlink(long hashlink) {
-        return null;
-    }
+    public List<ArticlesEntity> findByHashlink(long hashlink) {return null;}
+
+    @Override
+    public void incrementViewCount(UUID articleId) {}
+
+    @Override
+    public List<ArticlesEntity> findTop10ByOrderByViewCountDesc() {return null;}
 }
