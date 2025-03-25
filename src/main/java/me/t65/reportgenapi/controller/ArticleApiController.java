@@ -11,7 +11,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import me.t65.reportgenapi.controller.payload.ArticleByLinkRequest;
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.controller.payload.UidResponse;
-import me.t65.reportgenapi.db.postgres.entities.ArticlesEntity;
+import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
+import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.utils.IdGenerator;
 
@@ -36,6 +37,7 @@ public class ArticleApiController {
     private final DbArticlesService dbArticlesService;
 
     private final IdGenerator idGenerator;
+    private List<MonthlyArticlesEntity> top10Articles;
 
     @Autowired
     public ArticleApiController(DbArticlesService dbArticlesService, IdGenerator idGenerator) {
@@ -214,49 +216,87 @@ public class ArticleApiController {
 
 
     @Operation(
-            summary = "Increment view count for an article",
-            description = "This endpoint increments the view count of a specific article based on its ID.")
+            summary = "Increment view count of an article",
+            description = "This endpoint increments the view count of the article specified by its ID.")
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
                             description = "View count incremented successfully",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ArticlesEntity.class))),
+                            content = @Content(mediaType = "application/json")),
                     @ApiResponse(
                             responseCode = "404",
                             description = "Article not found",
                             content = @Content(mediaType = "application/json"))
             })
-    @PostMapping("/incrementViewCount/{id}")
+    @PostMapping("/increment-view/{id}")
     public ResponseEntity<?> incrementViewCount(@PathVariable UUID id) {
-        Optional<ArticlesEntity> response =
-                dbArticlesService.incrementArticleViewCount(id);
-
-        if (response.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(response.get());
-        }
+        Optional<MonthlyArticlesEntity> entity = dbArticlesService.incrementViewCount(id);
+        return entity.isPresent() ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
 
     @Operation(
-            summary = "Retrieve top 10 most viewed articles",
-            description = "This endpoint returns the 10 most viewed articles.")
+            summary = "Toggle the 'article of note' status",
+            description = "This endpoint toggles the 'article of note' status of an article specified by its ID.")
     @ApiResponses(
             value = {
                     @ApiResponse(
                             responseCode = "200",
-                            description = "Successfully retrieved top 10 most viewed articles",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = ArticlesEntity.class))),
+                            description = "Article of note status toggled successfully",
+                            content = @Content(mediaType = "application/json")),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "Article not found",
+                            content = @Content(mediaType = "application/json"))
             })
-    @GetMapping("/top-viewed")
-    public ResponseEntity<List<ArticlesEntity>> getTopViewedArticles() {
-        return ResponseEntity.ok(dbArticlesService.getTop10MostViewedArticles());
+    @PostMapping("/toggle-article-of-note/{id}")
+    public ResponseEntity<?> toggleArticleOfNote(@PathVariable UUID id) {
+        Optional<MonthlyArticlesEntity> entity = dbArticlesService.toggleArticleOfNote(id);
+        return entity.isPresent() ? ResponseEntity.ok(entity) : ResponseEntity.notFound().build();
     }
+
+    @Operation(
+            summary = "Retrieve top 10 articles based on view count",
+            description = "This endpoint fetches the top 10 articles sorted by their view count in descending order.")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Top 10 articles retrieved successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = MonthlyArticleDTO.class))),
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No articles found",
+                            content = @Content(mediaType = "application/json"))
+            })
+    @GetMapping("/top-10")
+    public ResponseEntity<List<MonthlyArticleDTO>> getTop10Articles() {
+        List<MonthlyArticleDTO> topArticles = dbArticlesService.getTop10Articles();
+        return topArticles.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(topArticles);
+    }
+
+    @Operation(
+            summary = "Retrieve articles marked as 'articles of note'",
+            description = "This endpoint fetches all articles that are marked as 'articles of note'.")
+    @ApiResponses(
+            value = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Articles of note retrieved successfully",
+                            content = @Content(
+                                    mediaType = "application/json",
+                                    schema = @Schema(implementation = MonthlyArticleDTO.class))),
+                    @ApiResponse(
+                            responseCode = "204",
+                            description = "No articles of note found",
+                            content = @Content(mediaType = "application/json"))
+            })
+    @GetMapping("/articles-of-note")
+    public ResponseEntity<List<MonthlyArticleDTO>> getArticlesOfNote() {
+        List<MonthlyArticleDTO> articlesOfNote = dbArticlesService.getArticlesOfNote();
+        return articlesOfNote.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(articlesOfNote);
+    }
+
 }

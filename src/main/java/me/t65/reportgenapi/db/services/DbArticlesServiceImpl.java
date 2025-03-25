@@ -3,8 +3,10 @@ package me.t65.reportgenapi.db.services;
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
+import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
 import me.t65.reportgenapi.db.postgres.entities.*;
 import me.t65.reportgenapi.db.postgres.entities.id.ArticleTypeEntity;
+import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 import me.t65.reportgenapi.db.postgres.entities.id.ReportArticlesId;
 import me.t65.reportgenapi.db.postgres.repository.*;
 import me.t65.reportgenapi.generators.JsonArticleGenerator;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -38,6 +41,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     private final ArticleCategoryRepository articleCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final ArticleTypeRepository articleTypeRepository;
+    private final MonthlyArticlesRepository monthlyArticlesRepository;
     private final JsonArticleGenerator jsonArticleGenerator;
     private final DbEntitiesUtils dbEntitiesUtils;
     private final DateService dateService;
@@ -53,6 +57,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             ArticleCategoryRepository articleCategoryRepository,
             CategoryRepository categoryRepository,
             ArticleTypeRepository articleTypeRepository,
+            MonthlyArticlesRepository monthlyArticlesRepository,
             JsonArticleGenerator jsonArticleGenerator,
             DbEntitiesUtils dbEntitiesUtils,
             DateService dateService) {
@@ -65,6 +70,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         this.articleCategoryRepository = articleCategoryRepository;
         this.categoryRepository = categoryRepository;
         this.articleTypeRepository = articleTypeRepository;
+        this.monthlyArticlesRepository = monthlyArticlesRepository;
         this.jsonArticleGenerator = jsonArticleGenerator;
         this.dbEntitiesUtils = dbEntitiesUtils;
         this.dateService = dateService;
@@ -444,14 +450,120 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         return articleTypeMap;
     }
 
-    public Optional<ArticlesEntity> incrementArticleViewCount(UUID articleId) {
-        Optional<ArticlesEntity> article = articlesRepository.findById(articleId);
-        article.ifPresent(a -> articlesRepository.incrementViewCount(a.getArticleId()));
-        return article;
+
+    public Optional<MonthlyArticlesEntity> incrementViewCount(UUID articleId) {
+
+        // Get the article from the main table
+        Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
+
+        if (articleOpt.isEmpty()) {
+            return Optional.empty();  // Article not found
+        }
+
+        Instant instant = articleOpt.get().getDatePublished();
+        LocalDate datePublished = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // Check if the article exists in the monthly table
+        MonthlyArticlesEntity monthlyArticle =
+                monthlyArticlesRepository.findByArticleId(articleId)
+                        .orElseGet(() -> {
+                            // Create a new entry if it doesn't exist
+                            MonthlyArticlesEntity newEntry = new MonthlyArticlesEntity();
+                            newEntry.setArticleId(articleId);
+                            newEntry.setDatePublished(datePublished);
+                            newEntry.setViewCount(0);
+                            newEntry.setArticleOfNote(false);
+                            return monthlyArticlesRepository.save(newEntry);
+                        });
+
+        // Increment view count
+        monthlyArticle.incrementViewCount();
+        return Optional.of(monthlyArticlesRepository.save(monthlyArticle));
     }
 
-    public List<ArticlesEntity> getTop10MostViewedArticles() {
-        return articlesRepository.findTop10ByOrderByViewCountDesc();
+
+
+    public Optional<MonthlyArticlesEntity> toggleArticleOfNote(UUID articleId) {
+
+        Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
+
+        if (articleOpt.isEmpty()) {
+            return Optional.empty();  // Article not found
+        }
+
+        Instant instant = articleOpt.get().getDatePublished();
+        LocalDate datePublished = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // Check if the article exists in the monthly table
+        MonthlyArticlesEntity monthlyArticle =
+                monthlyArticlesRepository.findByArticleId(articleId)
+                        .orElseGet(() -> {
+                            // Create a new entry if it doesn't exist
+                            MonthlyArticlesEntity newEntry = new MonthlyArticlesEntity();
+                            newEntry.setArticleId(articleId);
+                            newEntry.setDatePublished(datePublished);
+                            newEntry.setViewCount(0);
+                            newEntry.setArticleOfNote(false);
+                            return monthlyArticlesRepository.save(newEntry);
+                        });
+
+
+        // Toggle the article of note
+        monthlyArticle.setArticleOfNote(!monthlyArticle.isArticleOfNote());
+        return Optional.of(monthlyArticlesRepository.save(monthlyArticle));
     }
+
+
+    public List<MonthlyArticleDTO> getTop10Articles() {
+        // Get the top 10 articles sorted by view count
+        List<MonthlyArticlesEntity> topArticles = monthlyArticlesRepository.findTop10ByOrderByViewCountDesc();
+
+        // List to store the final responses
+        List<MonthlyArticleDTO> articleResponses = new ArrayList<>();
+
+        for (MonthlyArticlesEntity monthlyArticle : topArticles) {
+            // Fetch the article details by articleId using getArticleById
+            Optional<JsonArticleReportResponse> articleResponse = getArticleById(monthlyArticle.getArticleId());
+
+            // If the article is found, add it to the list
+            articleResponse.ifPresent(response -> {
+                // Create a new MonthlyArticleResponse that includes the URL and view count (optional)
+                MonthlyArticleDTO finalResponse = new MonthlyArticleDTO(
+                        response.getLink(),  // URL
+                        Optional.of(monthlyArticle.getViewCount())  // View count wrapped in Optional
+                );
+                articleResponses.add(finalResponse);
+            });
+        }
+
+        return articleResponses;
+    }
+
+
+    public List<MonthlyArticleDTO> getArticlesOfNote() {
+        // Get the articles of note from the monthly articles table
+        List<MonthlyArticlesEntity> articlesOfNote = monthlyArticlesRepository.findByIsArticleOfNoteTrue();
+
+        // List to store the final responses
+        List<MonthlyArticleDTO> articleResponses = new ArrayList<>();
+
+        for (MonthlyArticlesEntity monthlyArticle : articlesOfNote) {
+            // Fetch the article details by articleId
+            Optional<JsonArticleReportResponse> articleResponse = getArticleById(monthlyArticle.getArticleId());
+
+            // If the article is found, add it to the list
+            articleResponse.ifPresent(response -> {
+                // Create a new MonthlyArticleDTO that includes the URL and view count (optional)
+                MonthlyArticleDTO finalResponse = new MonthlyArticleDTO(
+                        response.getLink(),  // URL
+                        Optional.of(monthlyArticle.getViewCount())  // View count wrapped in Optional
+                );
+                articleResponses.add(finalResponse);
+            });
+        }
+
+        return articleResponses;
+    }
+
 
 }

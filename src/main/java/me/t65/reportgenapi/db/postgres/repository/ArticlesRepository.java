@@ -16,10 +16,4 @@ import java.util.UUID;
 public interface ArticlesRepository extends JpaRepository<ArticlesEntity, UUID> {
     List<ArticlesEntity> findByHashlink(long hashlink);
 
-    @Modifying
-    @Transactional
-    @Query("UPDATE ArticlesEntity a SET a.viewCount = a.viewCount + 1 WHERE a.id = :articleId")
-    void incrementViewCount(@Param("articleId") UUID articleId);
-
-    List<ArticlesEntity> findTop10ByOrderByViewCountDesc();
 }

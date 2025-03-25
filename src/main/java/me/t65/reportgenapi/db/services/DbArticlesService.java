@@ -1,11 +1,13 @@
 package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
-import me.t65.reportgenapi.db.postgres.entities.ArticlesEntity;
+import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
 import me.t65.reportgenapi.db.postgres.entities.CategoryEntity;
 import me.t65.reportgenapi.db.postgres.entities.IOCEntity;
+import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Collection;
 import java.util.List;
@@ -41,7 +43,12 @@ public interface DbArticlesService {
 
     public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days);
 
-    public Optional<ArticlesEntity> incrementArticleViewCount(UUID articleId);
+    public List<MonthlyArticleDTO> getTop10Articles();
 
-    public List<ArticlesEntity> getTop10MostViewedArticles();
+    public Optional<MonthlyArticlesEntity> toggleArticleOfNote(UUID articleId);
+
+    public Optional<MonthlyArticlesEntity> incrementViewCount(UUID articleId);
+
+    public List<MonthlyArticleDTO> getArticlesOfNote();
+
     }
