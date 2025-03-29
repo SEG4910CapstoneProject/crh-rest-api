@@ -454,14 +454,14 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     public Optional<MonthlyArticlesEntity> incrementViewCount(UUID articleId) {
 
         // Get the article from the main table
-        Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
-
+        //Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
+        Optional<JsonArticleReportResponse> articleOpt = getArticleById(articleId);
         if (articleOpt.isEmpty()) {
             return Optional.empty();  // Article not found
         }
 
-        Instant instant = articleOpt.get().getDatePublished();
-        LocalDate datePublished = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate datePublished = articleOpt.get().getPublishDate();
+        String title = articleOpt.get().getTitle();
 
         // Check if the article exists in the monthly table
         MonthlyArticlesEntity monthlyArticle =
@@ -473,6 +473,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                             newEntry.setDatePublished(datePublished);
                             newEntry.setViewCount(0);
                             newEntry.setArticleOfNote(false);
+                            newEntry.setTitle(title);
                             return monthlyArticlesRepository.save(newEntry);
                         });
 
@@ -485,14 +486,14 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
     public Optional<MonthlyArticlesEntity> toggleArticleOfNote(UUID articleId) {
 
-        Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
+        Optional<JsonArticleReportResponse> articleOpt = getArticleById(articleId);
 
         if (articleOpt.isEmpty()) {
             return Optional.empty();  // Article not found
         }
 
-        Instant instant = articleOpt.get().getDatePublished();
-        LocalDate datePublished = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate datePublished = articleOpt.get().getPublishDate();
+        String title = articleOpt.get().getTitle();
 
         // Check if the article exists in the monthly table
         MonthlyArticlesEntity monthlyArticle =
@@ -504,6 +505,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                             newEntry.setDatePublished(datePublished);
                             newEntry.setViewCount(0);
                             newEntry.setArticleOfNote(false);
+                            newEntry.setTitle(title);
                             return monthlyArticlesRepository.save(newEntry);
                         });
 
@@ -530,7 +532,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                 // Create a new MonthlyArticleResponse that includes the URL and view count (optional)
                 MonthlyArticleDTO finalResponse = new MonthlyArticleDTO(
                         response.getLink(),  // URL
-                        Optional.of(monthlyArticle.getViewCount())  // View count wrapped in Optional
+                        Optional.of(monthlyArticle.getViewCount()),  // View count wrapped in Optional
+                        response.getTitle()
                 );
                 articleResponses.add(finalResponse);
             });
@@ -556,7 +559,9 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                 // Create a new MonthlyArticleDTO that includes the URL and view count (optional)
                 MonthlyArticleDTO finalResponse = new MonthlyArticleDTO(
                         response.getLink(),  // URL
-                        Optional.of(monthlyArticle.getViewCount())  // View count wrapped in Optional
+                        Optional.of(monthlyArticle.getViewCount()),  // View count wrapped in Optional
+                        response.getTitle()
+
                 );
                 articleResponses.add(finalResponse);
             });

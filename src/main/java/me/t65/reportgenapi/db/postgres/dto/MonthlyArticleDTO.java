@@ -5,10 +5,12 @@ import java.util.Optional;
 public class MonthlyArticleDTO{
     private String url;
     private Optional<Integer> viewCount;  // Make viewCount optional
+    private String title;
 
-    public MonthlyArticleDTO(String url, Optional<Integer> viewCount) {
+    public MonthlyArticleDTO(String url, Optional<Integer> viewCount, String title) {
         this.url = url;
         this.viewCount = viewCount;
+        this.title = title;
     }
 
     // Getters and setters
@@ -26,6 +28,14 @@ public class MonthlyArticleDTO{
 
     public void setViewCount(Optional<Integer> viewCount) {
         this.viewCount = viewCount;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
 

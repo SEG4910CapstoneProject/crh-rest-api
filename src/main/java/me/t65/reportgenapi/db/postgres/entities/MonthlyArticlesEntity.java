@@ -32,6 +32,9 @@ public class MonthlyArticlesEntity {
     @Column(name = "is_article_of_note", nullable = false)
     private boolean isArticleOfNote = false;
 
+    @Column(name = "title", nullable = false)
+    private String title;
+
     public void incrementViewCount() {
         this.viewCount++;
     }
