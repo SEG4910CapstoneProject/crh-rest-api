@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -528,4 +529,37 @@ public class ReportApiController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Creates a new report", description = "Generates a new report entry and returns the report ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Report created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request")
+    })
+    @PostMapping("/create-basic-report")
+    public ResponseEntity<Map<String, Integer>> createBasicReport(@RequestParam ReportType reportType) {
+        int reportId = dbReportService.createBasicReport(Instant.now(), reportType);
+        return ResponseEntity.status(201).body(Map.of("reportId", reportId));
+    }
+
+    @Operation(
+            summary = "Deletes a report",
+            description = "Deletes a report by ID"
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "204", description = "Successfully deleted report"),
+                    @ApiResponse(responseCode = "404", description = "Report not found")
+            }
+    )
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<?> deleteReport(@PathVariable("id") int reportId) {
+        boolean deleted = dbReportService.deleteReport(reportId);
+
+        if (!deleted) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
 }

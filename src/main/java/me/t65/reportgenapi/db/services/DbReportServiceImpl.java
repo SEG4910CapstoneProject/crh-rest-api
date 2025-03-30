@@ -287,4 +287,37 @@ public class DbReportServiceImpl implements DbReportService {
                         iocEntities,
                         dbEntitiesUtils.getIocTypeIdToNameMap()));
     }
+
+    /**
+     * Creates a new report entry in the database.
+     *
+     * @param generateDate The timestamp when the report is created.
+     * @param reportType   The type of report (e.g., DAILY, WEEKLY).
+     * @return The generated report ID.
+     */
+    public int createBasicReport(Instant generateDate, ReportType reportType) {
+        ReportEntity report = new ReportEntity();
+        report.setGenerateDate(generateDate);
+        report.setLastModified(generateDate);
+        report.setReportType(reportType);
+        report.setEmailStatus(false); // Default status
+
+        ReportEntity savedReport = reportRepository.save(report);
+        return savedReport.getReportId();
+    }
+
+    /**
+     * Deletes a report in the database.
+     *
+     * @param reportId   The ID of report.
+     * @return If the function was successful or not
+     */
+    public boolean deleteReport(int reportId) {
+        if (!reportRepository.existsById(reportId)) {
+            return false;
+        }
+
+        reportRepository.deleteById(reportId);
+        return true;
+    }
 }

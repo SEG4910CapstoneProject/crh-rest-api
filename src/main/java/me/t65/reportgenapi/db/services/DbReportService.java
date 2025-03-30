@@ -4,6 +4,7 @@ import me.t65.reportgenapi.controller.payload.SearchReportResponse;
 import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.reportformatter.RawReport;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -17,4 +18,9 @@ public interface DbReportService {
     int getLatestReportId();
 
     Optional<RawReport> getRawReport(int reportId);
-}
+
+    public int createBasicReport(Instant generateDate, ReportType reportType);
+
+    boolean deleteReport(int reportId);
+
+    }
