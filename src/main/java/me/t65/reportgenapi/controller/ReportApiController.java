@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import me.t65.reportgenapi.controller.payload.*;
+import me.t65.reportgenapi.db.postgres.dto.ReportRequest;
+import me.t65.reportgenapi.db.postgres.entities.ReportEntity;
 import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.db.services.DbReportService;
@@ -20,6 +22,8 @@ import me.t65.reportgenapi.reportformatter.ReportFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -560,6 +564,89 @@ public class ReportApiController {
         }
 
         return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Creates a report by generating a PDF from the provided request and stores it.
+     * @param request The JSON payload containing articles, categories, and analyst comments.
+     * @return The ID of the created report.
+     */
+    @Operation(
+            summary = "Generates and stores a new report",
+            description = "Generates a full report PDF based on the provided articles, categories, and analyst comments, and saves it to the database."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Successfully created the report with the generated PDF"),
+                    @ApiResponse(responseCode = "400", description = "Invalid input data")
+            }
+    )
+    @PostMapping("create-pdf")
+    public ResponseEntity<Integer> createReport(@RequestBody ReportRequest request) {
+        // Call to service layer to generate and save the report.
+        int reportId = dbReportService.generateAndSaveReport(request);
+        // Return the ID of the created report with a 200 OK response.
+        return ResponseEntity.ok(reportId);
+    }
+
+    /**
+     * Retrieves a generated report's PDF by its ID.
+     * @param id The ID of the report to retrieve the PDF.
+     * @return The PDF as a byte array if found, or a 404 if not found.
+     */
+    @Operation(
+            summary = "Retrieves the PDF of a report by its ID",
+            description = "Fetches the PDF of the report identified by the provided ID."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Successfully retrieved the PDF of the report"),
+                    @ApiResponse(responseCode = "404", description = "Report not found")
+            }
+    )
+    @GetMapping("get-PDF/{id}")
+    public ResponseEntity<byte[]> getReportPdf(@PathVariable Integer id) {
+        // Call to service layer to get the report by ID.
+        Optional<ReportEntity> report = dbReportService.getReportById(id);
+
+        // If the report is found, return the PDF data.
+        if (report.isPresent()) {
+            byte[] pdfData = report.get().getPdfData();
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report_" + id + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfData);
+        } else {
+            // If the report is not found, return a 404 Not Found.
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
+     * Generates a preview PDF from the provided request without storing it.
+     * @param request The JSON payload containing articles, categories, and analyst comments.
+     * @return The generated PDF as a byte array.
+     */
+    @Operation(
+            summary = "Generates a preview of the report PDF",
+            description = "Creates a PDF report based on the provided articles, categories, and analyst comments, but does NOT store it in the database."
+    )
+    @ApiResponses(
+            value = {
+                    @ApiResponse(responseCode = "200", description = "Successfully generated the preview PDF"),
+                    @ApiResponse(responseCode = "400", description = "Invalid input data")
+            }
+    )
+    @PostMapping("preview-pdf")
+    public ResponseEntity<byte[]> previewReport(@RequestBody ReportRequest request) {
+        // Generate the PDF but do NOT store it
+        byte[] pdfBytes = dbReportService.generatePdf(request);
+
+        // Return the generated PDF for preview
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=preview_report.pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
     }
 
 }

@@ -3,8 +3,11 @@ package me.t65.reportgenapi.db.postgres.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
+import java.sql.Types;
 import java.time.Instant;
 
 @Getter
@@ -22,8 +25,8 @@ public class ReportEntity {
     @Column(name = "report_id")
     private Integer reportId;
 
-    @Column(name = "generate_date", nullable = false)
-    private Instant generateDate;
+    @Column(name = "generate_date", nullable = false, updatable = false)
+    private Instant generateDate = Instant.now();
 
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
@@ -31,8 +34,14 @@ public class ReportEntity {
     private ReportType reportType;
 
     @Column(name = "last_modified", nullable = false)
-    private Instant lastModified;
+    private Instant lastModified = Instant.now();
 
     @Column(name = "email_status", nullable = false)
-    private Boolean emailStatus = false; // Default to false
+    private Boolean emailStatus = false;
+
+    @JdbcTypeCode(Types.VARBINARY)
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "report_pdf", columnDefinition = "BYTEA")
+    private byte[] pdfData;
+
 }
