@@ -25,7 +25,7 @@ public interface DbReportService {
 
     boolean deleteReport(int reportId);
 
-    int generateAndSaveReport(ReportRequest request);
+    byte[] generateAndSaveReport(ReportRequest request);
 
     byte[] generatePdf(ReportRequest request);
 

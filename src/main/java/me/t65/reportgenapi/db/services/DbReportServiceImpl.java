@@ -339,20 +339,20 @@ public class DbReportServiceImpl implements DbReportService {
      * @return The ID of the saved report.
      * @throws RuntimeException if the report does not exist.
      */
-    public int generateAndSaveReport(ReportRequest request) {
-        byte[] pdfBytes = generatePdf(request);
+    public byte[] generateAndSaveReport(ReportRequest request) {
 
         // Ensure the report exists
         Optional<ReportEntity> optionalReport = reportRepository.findById(request.getReportID());
         if (optionalReport.isEmpty()) {
             throw new RuntimeException("Report not found with ID: " + request.getReportID());
         }
+        byte[] pdfBytes = generatePdf(request);
 
         ReportEntity report = optionalReport.get();
         report.setPdfData(pdfBytes);
         ReportEntity savedReport = reportRepository.save(report);
 
-        return savedReport.getReportId();
+        return savedReport.getPdfData();
     }
 
     /**

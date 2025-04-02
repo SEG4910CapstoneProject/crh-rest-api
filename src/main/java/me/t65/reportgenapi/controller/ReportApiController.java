@@ -569,7 +569,7 @@ public class ReportApiController {
     /**
      * Creates a report by generating a PDF from the provided request and stores it.
      * @param request The JSON payload containing articles, categories, and analyst comments.
-     * @return The ID of the created report.
+     * @return The preview pdf of the report.
      */
     @Operation(
             summary = "Generates and stores a new report",
@@ -582,11 +582,14 @@ public class ReportApiController {
             }
     )
     @PostMapping("create-pdf")
-    public ResponseEntity<Integer> createReport(@RequestBody ReportRequest request) {
+    public ResponseEntity<byte[]> createReport(@RequestBody ReportRequest request) {
         // Call to service layer to generate and save the report.
-        int reportId = dbReportService.generateAndSaveReport(request);
-        // Return the ID of the created report with a 200 OK response.
-        return ResponseEntity.ok(reportId);
+        byte[] pdfBytes = dbReportService.generateAndSaveReport(request);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=report_" + request.getReportID() + ".pdf")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
     }
 
     /**
