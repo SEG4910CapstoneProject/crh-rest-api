@@ -151,7 +151,7 @@ public class ArticlesRepositoryStub implements ArticlesRepository {
     }
 
     @Override
-    public List<ArticlesEntity> findByHashlink(long hashlink) {
-        return null;
-    }
+    public List<ArticlesEntity> findByHashlink(long hashlink) {return null;}
+
+
 }

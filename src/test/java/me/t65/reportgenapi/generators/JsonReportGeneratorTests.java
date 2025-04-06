@@ -35,7 +35,9 @@ public class JsonReportGeneratorTests {
                     Instant.ofEpochMilli(1000),
                     ReportType.daily,
                     Instant.ofEpochMilli(1000),
-                    true);
+                    true,
+                    new byte[] {}
+            );
 
     private static final ReportArticlesEntity REPORT_ARTICLES_ENTITY_1 =
             new ReportArticlesEntity(

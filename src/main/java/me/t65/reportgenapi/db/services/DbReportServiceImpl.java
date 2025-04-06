@@ -1,9 +1,18 @@
 package me.t65.reportgenapi.db.services;
 
+import com.itextpdf.kernel.colors.DeviceRgb;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.borders.Border;
+import com.itextpdf.layout.element.LineSeparator;
+import com.itextpdf.layout.element.Paragraph;
 import me.t65.reportgenapi.controller.payload.SearchReportDetailsResponse;
 import me.t65.reportgenapi.controller.payload.SearchReportResponse;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
+import me.t65.reportgenapi.db.postgres.dto.ReportRequest;
 import me.t65.reportgenapi.db.postgres.entities.*;
 import me.t65.reportgenapi.db.postgres.repository.*;
 import me.t65.reportgenapi.generators.JsonReportGenerator;
@@ -16,9 +25,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.io.ByteArrayOutputStream;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -286,5 +295,144 @@ public class DbReportServiceImpl implements DbReportService {
                         articleContents,
                         iocEntities,
                         dbEntitiesUtils.getIocTypeIdToNameMap()));
+    }
+
+    /**
+     * Creates a new report entry in the database.
+     *
+     * @param generateDate The timestamp when the report is created.
+     * @param reportType   The type of report (e.g., DAILY, WEEKLY).
+     * @return The generated report ID.
+     */
+    public int createBasicReport(Instant generateDate, ReportType reportType) {
+        ReportEntity report = new ReportEntity();
+        report.setGenerateDate(generateDate);
+        report.setLastModified(generateDate);
+        report.setReportType(reportType);
+        report.setEmailStatus(false); // Default status
+        report.setPdfData(null); // Empty array instead of null
+
+
+        ReportEntity savedReport = reportRepository.save(report);
+        return savedReport.getReportId();
+    }
+
+    /**
+     * Deletes a report in the database.
+     *
+     * @param reportId The ID of report.
+     * @return If the function was successful or not
+     */
+    public boolean deleteReport(int reportId) {
+        if (!reportRepository.existsById(reportId)) {
+            return false;
+        }
+
+        reportRepository.deleteById(reportId);
+        return true;
+    }
+
+    /**
+     * Generates a PDF report and saves it to the database.
+     *
+     * @param request The report request containing report details.
+     * @return The ID of the saved report.
+     * @throws RuntimeException if the report does not exist.
+     */
+    public byte[] generateAndSaveReport(ReportRequest request) {
+
+        // Ensure the report exists
+        Optional<ReportEntity> optionalReport = reportRepository.findById(request.getReportID());
+        if (optionalReport.isEmpty()) {
+            throw new RuntimeException("Report not found with ID: " + request.getReportID());
+        }
+        byte[] pdfBytes = generatePdf(request);
+
+        ReportEntity report = optionalReport.get();
+        report.setPdfData(pdfBytes);
+        ReportEntity savedReport = reportRepository.save(report);
+
+        return savedReport.getPdfData();
+    }
+
+    /**
+     * Generates a PDF report from the given request data.
+     *
+     * @param request The report request containing articles and metadata.
+     * @return A byte array representing the generated PDF.
+     */
+    public byte[] generatePdf(ReportRequest request) {
+        List<ReportRequest.ArticleDetails> articles = request.getArticles();
+        DeviceRgb color = new DeviceRgb(0, 102, 204);
+        Map<String, List<ReportRequest.ArticleDetails>> articlesByCategory = articles.stream()
+                .collect(Collectors.groupingBy(ReportRequest.ArticleDetails::getCategory));
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outputStream));
+        Document document = new Document(pdfDoc);
+
+        String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
+
+        // Create a date block with a blue background
+        Paragraph dateBlock = new Paragraph("Daily Report for: " + formattedDate)
+                .setBold().setFontSize(14).setFontColor(new DeviceRgb(255, 255, 255)) // White text
+                .setBackgroundColor(color) // Blue background
+                .setPadding(5) // Add some padding
+                .setBorder(Border.NO_BORDER) // Remove border
+                .setMarginBottom(10); // Add some spacing below
+        document.add(dateBlock);
+        document.add(new Paragraph("")); // Spacing
+
+        // Analyst comments
+        document.add(new Paragraph("Analyst Comments").setBold().setFontSize(14).setFontColor(color));
+        document.add(new Paragraph(request.getAnalystComments()).setItalic());
+        document.add(new Paragraph("")); // Space
+
+        // Blue separator line
+        SolidLine blueLine = new SolidLine();
+        blueLine.setLineWidth(1.5f);
+        blueLine.setColor(color);
+        document.add(new LineSeparator(blueLine));
+
+        // Loop through categories
+        for (Map.Entry<String, List<ReportRequest.ArticleDetails>> entry : articlesByCategory.entrySet()) {
+            document.add(new Paragraph(entry.getKey()).setBold().setFontSize(14).setFontColor(color));
+
+            for (ReportRequest.ArticleDetails article : entry.getValue()) {
+                document.add(new Paragraph("Title: " + article.getTitle()));
+                document.add(new Paragraph("Link: " + article.getLink()));
+                document.add(new Paragraph("Type: " + article.getType()));
+                document.add(new Paragraph("")); // Spacing
+            }
+
+            document.add(new LineSeparator(blueLine));
+        }
+
+        // Statistics Section
+        List<ReportRequest.StatisticDetails> statistics = request.getStatistics();
+        if (statistics != null && !statistics.isEmpty()) {
+            document.add(new Paragraph("Statistics").setBold().setFontSize(14).setFontColor(color));
+
+            for (ReportRequest.StatisticDetails stat : statistics) {
+                document.add(new Paragraph("Title: " + stat.getTitle()).setBold());
+                document.add(new Paragraph("Subtitle: " + stat.getSubtitle()));
+                document.add(new Paragraph("")); // Space between statistics
+            }
+
+            document.add(new LineSeparator(blueLine));
+        }
+
+        document.close();
+        return outputStream.toByteArray();
+    }
+
+    /**
+     * Retrieves a report by its ID.
+     *
+     * @param reportId The ID of the report.
+     * @return An Optional containing the report entity if found.
+     */
+    public Optional<ReportEntity> getReportById(Integer reportId) {
+        return reportRepository.findById(reportId);
     }
 }

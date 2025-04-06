@@ -70,7 +70,9 @@ public class HtmlReportFormatterTests {
                         Instant.ofEpochMilli(1000),
                         ReportType.daily,
                         Instant.ofEpochMilli(1000),
-                        true);
+                        true,
+                        new byte[] {}
+                );
 
         ReportArticlesEntity reportArticlesEntity1 =
                 new ReportArticlesEntity(

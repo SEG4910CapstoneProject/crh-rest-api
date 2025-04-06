@@ -35,4 +35,5 @@ public class ArticlesEntity {
 
     @Column(name = "hashlink")
     private long hashlink;
+
 }
