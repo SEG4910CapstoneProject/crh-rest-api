@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.db.postgres.entities;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
 import java.time.LocalDate;

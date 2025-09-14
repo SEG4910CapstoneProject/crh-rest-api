@@ -51,8 +51,7 @@ public class JsonReportFormatterTests {
                         ReportType.daily,
                         Instant.ofEpochMilli(1000),
                         true,
-                        new byte[] {}
-                        );
+                        new byte[] {});
 
         ReportArticlesEntity reportArticlesEntity1 =
                 new ReportArticlesEntity(

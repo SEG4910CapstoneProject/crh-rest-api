@@ -34,11 +34,11 @@ public class ReportRequest {
         this.articles = articles;
     }
 
-    public List<StatisticDetails> getStatistics() {  // <-- Added this
+    public List<StatisticDetails> getStatistics() { // <-- Added this
         return statistics;
     }
 
-    public void setStatistics(List<StatisticDetails> statistics) {  // <-- Added this
+    public void setStatistics(List<StatisticDetails> statistics) { // <-- Added this
         this.statistics = statistics;
     }
 
@@ -93,7 +93,7 @@ public class ReportRequest {
     }
 
     // Inner class for statistics details
-    public static class StatisticDetails {  // <-- Added this
+    public static class StatisticDetails {
         private String title;
         private String subtitle;
 
