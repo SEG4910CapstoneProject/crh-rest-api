@@ -1,10 +1,11 @@
 package me.t65.reportgenapi.db.postgres.entities;
 
 import jakarta.persistence.*;
+
 import lombok.*;
+
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.sql.Types;
@@ -43,5 +44,4 @@ public class ReportEntity {
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "report_pdf", columnDefinition = "BYTEA")
     private byte[] pdfData;
-
 }

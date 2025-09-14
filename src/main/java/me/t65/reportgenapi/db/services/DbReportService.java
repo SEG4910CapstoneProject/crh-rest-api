@@ -30,5 +30,4 @@ public interface DbReportService {
     byte[] generatePdf(ReportRequest request);
 
     Optional<ReportEntity> getReportById(Integer reportId);
-
-    }
+}

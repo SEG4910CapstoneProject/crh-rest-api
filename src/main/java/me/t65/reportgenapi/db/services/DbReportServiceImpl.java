@@ -8,6 +8,7 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.element.LineSeparator;
 import com.itextpdf.layout.element.Paragraph;
+
 import me.t65.reportgenapi.controller.payload.SearchReportDetailsResponse;
 import me.t65.reportgenapi.controller.payload.SearchReportResponse;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
@@ -301,7 +302,7 @@ public class DbReportServiceImpl implements DbReportService {
      * Creates a new report entry in the database.
      *
      * @param generateDate The timestamp when the report is created.
-     * @param reportType   The type of report (e.g., DAILY, WEEKLY).
+     * @param reportType The type of report (e.g., DAILY, WEEKLY).
      * @return The generated report ID.
      */
     public int createBasicReport(Instant generateDate, ReportType reportType) {
@@ -311,7 +312,6 @@ public class DbReportServiceImpl implements DbReportService {
         report.setReportType(reportType);
         report.setEmailStatus(false); // Default status
         report.setPdfData(null); // Empty array instead of null
-
 
         ReportEntity savedReport = reportRepository.save(report);
         return savedReport.getReportId();
@@ -364,8 +364,9 @@ public class DbReportServiceImpl implements DbReportService {
     public byte[] generatePdf(ReportRequest request) {
         List<ReportRequest.ArticleDetails> articles = request.getArticles();
         DeviceRgb color = new DeviceRgb(0, 102, 204);
-        Map<String, List<ReportRequest.ArticleDetails>> articlesByCategory = articles.stream()
-                .collect(Collectors.groupingBy(ReportRequest.ArticleDetails::getCategory));
+        Map<String, List<ReportRequest.ArticleDetails>> articlesByCategory =
+                articles.stream()
+                        .collect(Collectors.groupingBy(ReportRequest.ArticleDetails::getCategory));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfDocument pdfDoc = new PdfDocument(new PdfWriter(outputStream));
@@ -374,17 +375,21 @@ public class DbReportServiceImpl implements DbReportService {
         String formattedDate = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy"));
 
         // Create a date block with a blue background
-        Paragraph dateBlock = new Paragraph("Daily Report for: " + formattedDate)
-                .setBold().setFontSize(14).setFontColor(new DeviceRgb(255, 255, 255)) // White text
-                .setBackgroundColor(color) // Blue background
-                .setPadding(5) // Add some padding
-                .setBorder(Border.NO_BORDER) // Remove border
-                .setMarginBottom(10); // Add some spacing below
+        Paragraph dateBlock =
+                new Paragraph("Daily Report for: " + formattedDate)
+                        .setBold()
+                        .setFontSize(14)
+                        .setFontColor(new DeviceRgb(255, 255, 255)) // White text
+                        .setBackgroundColor(color) // Blue background
+                        .setPadding(5) // Add some padding
+                        .setBorder(Border.NO_BORDER) // Remove border
+                        .setMarginBottom(10); // Add some spacing below
         document.add(dateBlock);
         document.add(new Paragraph("")); // Spacing
 
         // Analyst comments
-        document.add(new Paragraph("Analyst Comments").setBold().setFontSize(14).setFontColor(color));
+        document.add(
+                new Paragraph("Analyst Comments").setBold().setFontSize(14).setFontColor(color));
         document.add(new Paragraph(request.getAnalystComments()).setItalic());
         document.add(new Paragraph("")); // Space
 
@@ -395,8 +400,10 @@ public class DbReportServiceImpl implements DbReportService {
         document.add(new LineSeparator(blueLine));
 
         // Loop through categories
-        for (Map.Entry<String, List<ReportRequest.ArticleDetails>> entry : articlesByCategory.entrySet()) {
-            document.add(new Paragraph(entry.getKey()).setBold().setFontSize(14).setFontColor(color));
+        for (Map.Entry<String, List<ReportRequest.ArticleDetails>> entry :
+                articlesByCategory.entrySet()) {
+            document.add(
+                    new Paragraph(entry.getKey()).setBold().setFontSize(14).setFontColor(color));
 
             for (ReportRequest.ArticleDetails article : entry.getValue()) {
                 document.add(new Paragraph("Title: " + article.getTitle()));

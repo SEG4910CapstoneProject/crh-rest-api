@@ -2,9 +2,9 @@ package me.t65.reportgenapi.db.postgres.dto;
 
 import java.util.Optional;
 
-public class MonthlyArticleDTO{
+public class MonthlyArticleDTO {
     private String url;
-    private Optional<Integer> viewCount;  // Make viewCount optional
+    private Optional<Integer> viewCount; // Make viewCount optional
     private String title;
 
     public MonthlyArticleDTO(String url, Optional<Integer> viewCount, String title) {
@@ -38,4 +38,3 @@ public class MonthlyArticleDTO{
         this.title = title;
     }
 }
-

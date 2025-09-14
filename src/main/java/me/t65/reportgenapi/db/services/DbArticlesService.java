@@ -7,7 +7,6 @@ import me.t65.reportgenapi.db.postgres.entities.IOCEntity;
 import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.Collection;
 import java.util.List;
@@ -50,5 +49,4 @@ public interface DbArticlesService {
     public Optional<MonthlyArticlesEntity> incrementViewCount(UUID articleId);
 
     public List<MonthlyArticleDTO> getArticlesOfNote();
-
-    }
+}
