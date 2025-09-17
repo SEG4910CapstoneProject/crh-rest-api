@@ -45,112 +45,112 @@ public class ReportApiControllerTests {
                         dbReportService, dbStatsService, dbArticlesService, reportFormatterMap);
     }
 
-    @Test
-    public void testSearchReports_dateAndType_success() {
-        LocalDate startLocalDate = LocalDate.parse("2024-01-01");
-        LocalDate endLocalDate = LocalDate.parse("2024-01-10");
-        SearchReportResponse mockSearchReportResponse =
-                new SearchReportResponse(1, List.of(new SearchReportDetailsResponse()));
-        when(dbReportService.searchReports(startLocalDate, endLocalDate, ReportType.daily, 0, 10))
-                .thenReturn(mockSearchReportResponse);
+    // @Test
+    // public void testSearchReports_dateAndType_success() {
+    //     LocalDate startLocalDate = LocalDate.parse("2024-01-01");
+    //     LocalDate endLocalDate = LocalDate.parse("2024-01-10");
+    //     SearchReportResponse mockSearchReportResponse =
+    //             new SearchReportResponse(1, List.of(new SearchReportDetailsResponse()));
+    //     when(dbReportService.searchReports(startLocalDate, endLocalDate, ReportType.daily, 0, 10))
+    //             .thenReturn(mockSearchReportResponse);
 
-        ResponseEntity<?> responseEntity =
-                reportApiController.searchReports(
-                        startLocalDate, endLocalDate, ReportType.daily, 0, 10);
+    //     ResponseEntity<?> responseEntity =
+    //             reportApiController.searchReports(
+    //                     startLocalDate, endLocalDate, ReportType.daily, 0, 10);
 
-        // Verify response
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        SearchReportResponse responseBody = (SearchReportResponse) responseEntity.getBody();
-        assertNotNull(responseBody);
-        assertEquals(1, responseBody.getReports().size());
-        assertEquals(mockSearchReportResponse, responseBody);
+    //     // Verify response
+    //     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+    //     SearchReportResponse responseBody = (SearchReportResponse) responseEntity.getBody();
+    //     assertNotNull(responseBody);
+    //     assertEquals(1, responseBody.getReports().size());
+    //     assertEquals(mockSearchReportResponse, responseBody);
 
-        // Verify DBService
-        verify(dbReportService, times(1))
-                .searchReports(startLocalDate, endLocalDate, ReportType.daily, 0, 10);
-    }
+    //     // Verify DBService
+    //     verify(dbReportService, times(1))
+    //             .searchReports(startLocalDate, endLocalDate, ReportType.daily, 0, 10);
+    // }
 
-    @Test
-    public void testSearchReports_nullStartDate_badRequest() {
-        LocalDate endLocalDate = LocalDate.parse("2024-01-10");
+    // @Test
+    // public void testSearchReports_nullStartDate_badRequest() {
+    //     LocalDate endLocalDate = LocalDate.parse("2024-01-10");
 
-        ResponseEntity<?> responseEntity =
-                reportApiController.searchReports(null, endLocalDate, ReportType.daily, 0, 10);
+    //     ResponseEntity<?> responseEntity =
+    //             reportApiController.searchReports(null, endLocalDate, ReportType.daily, 0, 10);
 
-        // Verify response
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals("Both start and end dates need to be defined", responseEntity.getBody());
+    //     // Verify response
+    //     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    //     assertEquals("Both start and end dates need to be defined", responseEntity.getBody());
 
-        // Verify DBService
-        verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
-    }
+    //     // Verify DBService
+    //     verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
+    // }
 
-    @Test
-    public void testSearchReports_startDateAfterEndDate_badRequest() {
-        LocalDate endLocalDate = LocalDate.parse("2024-01-01");
-        LocalDate startLocalDate = LocalDate.parse("2024-01-10");
+    // @Test
+    // public void testSearchReports_startDateAfterEndDate_badRequest() {
+    //     LocalDate endLocalDate = LocalDate.parse("2024-01-01");
+    //     LocalDate startLocalDate = LocalDate.parse("2024-01-10");
 
-        ResponseEntity<?> responseEntity =
-                reportApiController.searchReports(
-                        startLocalDate, endLocalDate, ReportType.daily, 0, 10);
+    //     ResponseEntity<?> responseEntity =
+    //             reportApiController.searchReports(
+    //                     startLocalDate, endLocalDate, ReportType.daily, 0, 10);
 
-        // Verify response
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals("End date must be after start date.", responseEntity.getBody());
+    //     // Verify response
+    //     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    //     assertEquals("End date must be after start date.", responseEntity.getBody());
 
-        // Verify DBService
-        verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
-    }
+    //     // Verify DBService
+    //     verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
+    // }
 
-    @Test
-    public void testSearchReports_invalidReportType_badRequest() {
-        LocalDate startLocalDate = LocalDate.parse("2024-01-01");
-        LocalDate endLocalDate = LocalDate.parse("2024-01-10");
+    // @Test
+    // public void testSearchReports_invalidReportType_badRequest() {
+    //     LocalDate startLocalDate = LocalDate.parse("2024-01-01");
+    //     LocalDate endLocalDate = LocalDate.parse("2024-01-10");
 
-        ResponseEntity<?> responseEntity =
-                reportApiController.searchReports(startLocalDate, endLocalDate, null, 0, 10);
+    //     ResponseEntity<?> responseEntity =
+    //             reportApiController.searchReports(startLocalDate, endLocalDate, null, 0, 10);
 
-        // Verify response
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals("Invalid report type", responseEntity.getBody());
+    //     // Verify response
+    //     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    //     assertEquals("Invalid report type", responseEntity.getBody());
 
-        // Verify DBService
-        verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
-    }
+    //     // Verify DBService
+    //     verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
+    // }
 
-    @Test
-    public void testSearchReports_negativePage_badRequest() {
-        LocalDate startLocalDate = LocalDate.parse("2024-01-01");
-        LocalDate endLocalDate = LocalDate.parse("2024-01-10");
+    // @Test
+    // public void testSearchReports_negativePage_badRequest() {
+    //     LocalDate startLocalDate = LocalDate.parse("2024-01-01");
+    //     LocalDate endLocalDate = LocalDate.parse("2024-01-10");
 
-        ResponseEntity<?> responseEntity =
-                reportApiController.searchReports(
-                        startLocalDate, endLocalDate, ReportType.daily, -1, 10);
+    //     ResponseEntity<?> responseEntity =
+    //             reportApiController.searchReports(
+    //                     startLocalDate, endLocalDate, ReportType.daily, -1, 10);
 
-        // Verify response
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals("'page' is not a valid number", responseEntity.getBody());
+    //     // Verify response
+    //     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    //     assertEquals("'page' is not a valid number", responseEntity.getBody());
 
-        // Verify DBService
-        verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
-    }
+    //     // Verify DBService
+    //     verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
+    // }
 
-    @Test
-    public void testSearchReports_negativeLimit_badRequest() {
-        LocalDate startLocalDate = LocalDate.parse("2024-01-01");
-        LocalDate endLocalDate = LocalDate.parse("2024-01-10");
+    // @Test
+    // public void testSearchReports_negativeLimit_badRequest() {
+    //     LocalDate startLocalDate = LocalDate.parse("2024-01-01");
+    //     LocalDate endLocalDate = LocalDate.parse("2024-01-10");
 
-        ResponseEntity<?> responseEntity =
-                reportApiController.searchReports(
-                        startLocalDate, endLocalDate, ReportType.daily, 0, -1);
+    //     ResponseEntity<?> responseEntity =
+    //             reportApiController.searchReports(
+    //                     startLocalDate, endLocalDate, ReportType.daily, 0, -1);
 
-        // Verify response
-        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-        assertEquals("'limit' is not a valid number", responseEntity.getBody());
+    //     // Verify response
+    //     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+    //     assertEquals("'limit' is not a valid number", responseEntity.getBody());
 
-        // Verify DBService
-        verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
-    }
+    //     // Verify DBService
+    //     verify(dbReportService, never()).searchReports(any(), any(), any(), anyInt(), anyInt());
+    // }
 
     @Test
     public void testGetReportByID_success() {

@@ -20,6 +20,8 @@ import me.t65.reportgenapi.db.services.DbStatsService;
 import me.t65.reportgenapi.reportformatter.RawReport;
 import me.t65.reportgenapi.reportformatter.ReportFormatter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
@@ -45,6 +47,7 @@ import java.util.UUID;
 @RestController
 public class ReportApiController {
 
+    private final Logger LOGGER = LoggerFactory.getLogger(ReportApiController.class);
     private final DbReportService dbReportService;
     private final DbStatsService dbStatsService;
     private final DbArticlesService dbArticlesService;
@@ -111,43 +114,46 @@ public class ReportApiController {
             @Parameter(description = "End date (YYYY-MM-DD)")
                     @RequestParam(name = "date-end", required = false)
                     LocalDate dateEnd,
-            @Parameter(description = "Type of report") @RequestParam(name = "type") ReportType type,
-            @Parameter(
-                            description =
-                                    "The page of the search. The offset of data is determined by"
-                                            + " \"limit\"",
-                            schema =
-                                    @Schema(defaultValue = "0", type = "integer", format = "int32"))
-                    @RequestParam(defaultValue = "0")
-                    int page,
-            @Parameter(
-                            description = "The limit of results returned by this api",
-                            schema =
-                                    @Schema(
-                                            defaultValue = "10",
-                                            type = "integer",
-                                            format = "int32"))
-                    @RequestParam(defaultValue = "10")
-                    int limit) {
-
-        if ((dateStart == null && dateEnd != null) || (dateStart != null && dateEnd == null)) {
-            return ResponseEntity.badRequest().body("Both start and end dates need to be defined");
-        }
-        if (dateStart != null && !dateStart.isBefore(dateEnd)) {
+            @Parameter(description = "Type of report") @RequestParam(name = "type",required = false, defaultValue = "notSpecified") ReportType type,
+            @Parameter(description = "Report number") @RequestParam(name = "reportNo",required = false, defaultValue = "0") Integer reportNo)
+        //     @Parameter(
+        //                     description =
+        //                             "The page of the search. The offset of data is determined by"
+        //                                     + " \"limit\"",
+        //                     schema =
+        //                             @Schema(defaultValue = "0", type = "integer", format = "int32"))
+        //             @RequestParam(defaultValue = "0")
+        //             int page,
+        //     @Parameter(
+        //                     description = "The limit of results returned by this api",
+        //                     schema =
+        //                             @Schema(
+        //                                     defaultValue = "10",
+        //                                     type = "integer",
+        //                                     format = "int32"))
+        //             @RequestParam(defaultValue = "10")
+        //             int limit) 
+        {
+                LOGGER.info("in searchReports, received: date-start: {}, date-end: {}, reportNo: {}, type: {}",dateStart,dateEnd,reportNo,type);
+        if (dateStart != null && dateEnd != null && !dateStart.isBefore(dateEnd))
+        {
             return ResponseEntity.badRequest().body("End date must be after start date.");
         }
-        if (type == null) {
-            return ResponseEntity.badRequest().body("Invalid report type");
-        }
-        if (page < 0) {
-            return ResponseEntity.badRequest().body("'page' is not a valid number");
-        }
-        if (limit < 0) {
-            return ResponseEntity.badRequest().body("'limit' is not a valid number");
+
+        if (type != ReportType.notSpecified && type != ReportType.daily && type != ReportType.weekly)
+        {
+            return ResponseEntity.badRequest().body("Unsupported report type");
         }
 
+        // if (page < 0) {
+        //     return ResponseEntity.badRequest().body("'page' is not a valid number");
+        // }
+        // if (limit < 0) {
+        //     return ResponseEntity.badRequest().body("'limit' is not a valid number");
+        // }
+
         return ResponseEntity.ok()
-                .body(dbReportService.searchReports(dateStart, dateEnd, type, page, limit));
+        .body(dbReportService.searchReports(dateStart, dateEnd, type,reportNo/* , page, limit*/));
     }
 
     @Operation(

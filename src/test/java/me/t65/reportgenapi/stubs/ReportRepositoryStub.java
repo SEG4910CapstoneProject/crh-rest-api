@@ -173,12 +173,55 @@ public class ReportRepositoryStub implements ReportRepository {
     }
 
     @Override
-    public List<ReportEntity> findByReportType(ReportType reportType, Pageable pageable) {
+    public List<ReportEntity> findByReportType(ReportType reportType/* , Pageable pageable*/) {
         return null;
     }
 
     @Override
     public ReportEntity findFirstByOrderByGenerateDateDesc() {
         return null;
+    }
+
+    @Override
+    public List<ReportEntity> findByGenerateDateLessThanEqual(Instant generateDateEnd) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByGenerateDateLessThanEqual'");
+    }
+
+    @Override
+    public List<ReportEntity> findByGenerateDateGreaterThanEqual(Instant generateDateStart) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByGenerateDateGreaterThanEqual'");
+    }
+
+    @Override
+    public List<ReportEntity> findByGenerateDateBetween(Instant generateDateStart, Instant generateDateEnd) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByGenerateDateBetween'");
+    }
+
+    @Override
+    public List<ReportEntity> findByReportId(long reportId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByReportId'");
+    }
+
+    @Override
+    public List<ReportEntity> findByGenerateDateLessThanEqualAndReportId(Instant generateDateEnd, long reportId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByGenerateDateLessThanEqualAndReportId'");
+    }
+
+    @Override
+    public List<ReportEntity> findByGenerateDateGreaterThanEqualAndReportId(Instant generateDateStart, long reportId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByGenerateDateGreaterThanEqualAndReportId'");
+    }
+
+    @Override
+    public List<ReportEntity> findByGenerateDateBetweenAndReportId(Instant generateDateStart, Instant generateDateEnd,
+            long reportId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'findByGenerateDateBetweenAndReportId'");
     }
 }

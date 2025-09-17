@@ -19,10 +19,9 @@ import me.t65.reportgenapi.generators.JsonReportGenerator;
 import me.t65.reportgenapi.reportformatter.RawReport;
 import me.t65.reportgenapi.utils.StreamUtils;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
@@ -46,6 +45,8 @@ public class DbReportServiceImpl implements DbReportService {
     private final JsonReportGenerator jsonReportGenerator;
     private final DbEntitiesUtils dbEntitiesUtils;
     private final DbArticlesService dbArticlesService;
+    private final Logger LOGGER = LoggerFactory.getLogger(DbReportServiceImpl.class);
+
 
     @Autowired
     public DbReportServiceImpl(
@@ -80,29 +81,45 @@ public class DbReportServiceImpl implements DbReportService {
 
     @Override
     public SearchReportResponse searchReports(
-            LocalDate dateStart, LocalDate dateEnd, ReportType type, int page, int limit) {
-        Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "reportId");
+            LocalDate dateStart, LocalDate dateEnd, ReportType type,Integer reportNo/* , int page, int limit*/) 
+        {
+        // Tech debt: Specification might need to be used here, to manage growing number of filters
+
+        // Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "reportId");
+        // Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "reportId");
 
         List<ReportEntity> reports;
-        long totalCount;
-
-        if (dateStart == null || dateEnd == null) {
-            // If dates are not defined, assume all data
-            reports = reportRepository.findByReportType(type, pageable);
-            totalCount = reportRepository.countByReportType(type);
-        } else {
-            // dates are defined, search between dates
-            Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
-            Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
-
-            reports =
-                    reportRepository.findByGenerateDateBetweenAndReportType(
-                            startDateTime, endDateTime, type, pageable);
-            totalCount =
-                    reportRepository.countByGenerateDateBetweenAndReportType(
-                            startDateTime, endDateTime, type);
+        long totalCount = 0;
+        LOGGER.info("Comparing dates and the report number");
+        if (dateStart == null && dateEnd == null)
+        {
+          // all data should be returned
+          reports = (reportNo == 0 ? reportRepository.findAll() : reportRepository.findByReportId(reportNo));// TODO: CAP331, next only get reports respecting the limit asked.
+        } 
+        else if (dateStart == null && dateEnd != null)
+        {
+          Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
+          reports = (reportNo == 0 ? reportRepository.findByGenerateDateLessThanEqual(endDateTime):reportRepository.findByGenerateDateLessThanEqualAndReportId(endDateTime, reportNo));
         }
-        return new SearchReportResponse(totalCount, getSearchDetails(reports));
+        else if (dateStart != null && dateEnd == null)
+        {
+          Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
+          reports = (reportNo == 0 ? reportRepository.findByGenerateDateGreaterThanEqual(startDateTime):reportRepository.findByGenerateDateGreaterThanEqualAndReportId(startDateTime, reportNo));
+        }
+        else
+        {
+          Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
+          Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
+          reports = (reportNo == 0 ? reportRepository.findByGenerateDateBetween(startDateTime, endDateTime):reportRepository.findByGenerateDateBetweenAndReportId(startDateTime,endDateTime,reportNo)); 
+        }
+
+        if (type != ReportType.notSpecified)
+        {
+                reports = reports.stream().filter(report -> report.getReportType().equals(type)).toList();
+        }
+
+        totalCount = reports.size();
+        return new SearchReportResponse(totalCount, getSearchDetails(reports.reversed()));
     }
 
     @Override

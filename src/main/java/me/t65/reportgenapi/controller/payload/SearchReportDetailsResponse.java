@@ -25,7 +25,7 @@ public class SearchReportDetailsResponse {
 
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty("generatedDate")
-    private LocalDate generatedDate;
+    private LocalDateTime generatedDate;
 
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
     @JsonProperty("lastModified")
