@@ -540,27 +540,27 @@ public class ReportApiController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Creates a new report", description = "Generates a new report entry and returns the report ID.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Report created successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid request")
-    })
+    @Operation(
+            summary = "Creates a new report",
+            description = "Generates a new report entry and returns the report ID.")
+    @ApiResponses(
+            value = {
+                @ApiResponse(responseCode = "201", description = "Report created successfully"),
+                @ApiResponse(responseCode = "400", description = "Invalid request")
+            })
     @PostMapping("/create-basic-report")
-    public ResponseEntity<Map<String, Integer>> createBasicReport(@RequestParam ReportType reportType) {
+    public ResponseEntity<Map<String, Integer>> createBasicReport(
+            @RequestParam ReportType reportType) {
         int reportId = dbReportService.createBasicReport(Instant.now(), reportType);
         return ResponseEntity.status(201).body(Map.of("reportId", reportId));
     }
 
-    @Operation(
-            summary = "Deletes a report",
-            description = "Deletes a report by ID"
-    )
+    @Operation(summary = "Deletes a report", description = "Deletes a report by ID")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "204", description = "Successfully deleted report"),
-                    @ApiResponse(responseCode = "404", description = "Report not found")
-            }
-    )
+                @ApiResponse(responseCode = "204", description = "Successfully deleted report"),
+                @ApiResponse(responseCode = "404", description = "Report not found")
+            })
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteReport(@PathVariable("id") int reportId) {
         boolean deleted = dbReportService.deleteReport(reportId);
@@ -574,45 +574,51 @@ public class ReportApiController {
 
     /**
      * Creates a report by generating a PDF from the provided request and stores it.
+     *
      * @param request The JSON payload containing articles, categories, and analyst comments.
      * @return The preview pdf of the report.
      */
     @Operation(
             summary = "Generates and stores a new report",
-            description = "Generates a full report PDF based on the provided articles, categories, and analyst comments, and saves it to the database."
-    )
+            description =
+                    "Generates a full report PDF based on the provided articles, categories, and"
+                            + " analyst comments, and saves it to the database.")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "Successfully created the report with the generated PDF"),
-                    @ApiResponse(responseCode = "400", description = "Invalid input data")
-            }
-    )
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Successfully created the report with the generated PDF"),
+                @ApiResponse(responseCode = "400", description = "Invalid input data")
+            })
     @PostMapping("create-pdf")
     public ResponseEntity<byte[]> createReport(@RequestBody ReportRequest request) {
         // Call to service layer to generate and save the report.
         byte[] pdfBytes = dbReportService.generateAndSaveReport(request);
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=report_" + request.getReportID() + ".pdf")
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=report_" + request.getReportID() + ".pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
     }
 
     /**
      * Retrieves a generated report's PDF by its ID.
+     *
      * @param id The ID of the report to retrieve the PDF.
      * @return The PDF as a byte array if found, or a 404 if not found.
      */
     @Operation(
             summary = "Retrieves the PDF of a report by its ID",
-            description = "Fetches the PDF of the report identified by the provided ID."
-    )
+            description = "Fetches the PDF of the report identified by the provided ID.")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "Successfully retrieved the PDF of the report"),
-                    @ApiResponse(responseCode = "404", description = "Report not found")
-            }
-    )
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Successfully retrieved the PDF of the report"),
+                @ApiResponse(responseCode = "404", description = "Report not found")
+            })
     @GetMapping("get-PDF/{id}")
     public ResponseEntity<byte[]> getReportPdf(@PathVariable Integer id) {
         // Call to service layer to get the report by ID.
@@ -622,7 +628,9 @@ public class ReportApiController {
         if (report.isPresent()) {
             byte[] pdfData = report.get().getPdfData();
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report_" + id + ".pdf")
+                    .header(
+                            HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=report_" + id + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfData);
         } else {
@@ -633,19 +641,22 @@ public class ReportApiController {
 
     /**
      * Generates a preview PDF from the provided request without storing it.
+     *
      * @param request The JSON payload containing articles, categories, and analyst comments.
      * @return The generated PDF as a byte array.
      */
     @Operation(
             summary = "Generates a preview of the report PDF",
-            description = "Creates a PDF report based on the provided articles, categories, and analyst comments, but does NOT store it in the database."
-    )
+            description =
+                    "Creates a PDF report based on the provided articles, categories, and analyst"
+                            + " comments, but does NOT store it in the database.")
     @ApiResponses(
             value = {
-                    @ApiResponse(responseCode = "200", description = "Successfully generated the preview PDF"),
-                    @ApiResponse(responseCode = "400", description = "Invalid input data")
-            }
-    )
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Successfully generated the preview PDF"),
+                @ApiResponse(responseCode = "400", description = "Invalid input data")
+            })
     @PostMapping("preview-pdf")
     public ResponseEntity<byte[]> previewReport(@RequestBody ReportRequest request) {
         // Generate the PDF but do NOT store it
@@ -657,5 +668,4 @@ public class ReportApiController {
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
     }
-
 }
