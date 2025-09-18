@@ -9,9 +9,7 @@ import me.t65.reportgenapi.controller.payload.JsonStatsResponse;
 import me.t65.reportgenapi.db.postgres.entities.ReportStatisticsEntity;
 import me.t65.reportgenapi.db.postgres.entities.StatisticEntity;
 import me.t65.reportgenapi.db.postgres.entities.id.ReportStatisticsId;
-import me.t65.reportgenapi.db.postgres.repository.ReportRepository;
-import me.t65.reportgenapi.db.postgres.repository.ReportStatisticsRepository;
-import me.t65.reportgenapi.db.postgres.repository.StatisticsRepository;
+import me.t65.reportgenapi.db.postgres.repository.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +40,8 @@ public class DbStatsServiceImplTests {
     @MockBean StatisticsRepository statisticsRepository;
 
     @MockBean ReportStatisticsRepository reportStatisticsRepository;
-
+    @MockBean ArticleTypeRepository articleTypeRepository;
+    @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
     @Autowired DbStatsServiceImpl dbStatsService;
 
     @Test
