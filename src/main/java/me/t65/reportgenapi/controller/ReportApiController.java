@@ -114,34 +114,45 @@ public class ReportApiController {
             @Parameter(description = "End date (YYYY-MM-DD)")
                     @RequestParam(name = "date-end", required = false)
                     LocalDate dateEnd,
-            @Parameter(description = "Type of report") @RequestParam(name = "type",required = false, defaultValue = "notSpecified") ReportType type,
-            @Parameter(description = "Report number") @RequestParam(name = "reportNo",required = false, defaultValue = "0") Integer reportNo)
-        //     @Parameter(
-        //                     description =
-        //                             "The page of the search. The offset of data is determined by"
-        //                                     + " \"limit\"",
-        //                     schema =
-        //                             @Schema(defaultValue = "0", type = "integer", format = "int32"))
-        //             @RequestParam(defaultValue = "0")
-        //             int page,
-        //     @Parameter(
-        //                     description = "The limit of results returned by this api",
-        //                     schema =
-        //                             @Schema(
-        //                                     defaultValue = "10",
-        //                                     type = "integer",
-        //                                     format = "int32"))
-        //             @RequestParam(defaultValue = "10")
-        //             int limit) 
-        {
-                LOGGER.info("in searchReports, received: date-start: {}, date-end: {}, reportNo: {}, type: {}",dateStart,dateEnd,reportNo,type);
-        if (dateStart != null && dateEnd != null && !dateStart.isBefore(dateEnd))
-        {
+            @Parameter(description = "Type of report")
+                    @RequestParam(name = "type", required = false, defaultValue = "notSpecified")
+                    ReportType type,
+            @Parameter(description = "Report number")
+                    @RequestParam(name = "reportNo", required = false, defaultValue = "0")
+                    Integer reportNo)
+                //     @Parameter(
+                //                     description =
+                //                             "The page of the search. The offset of data is
+                // determined by"
+                //                                     + " \"limit\"",
+                //                     schema =
+                //                             @Schema(defaultValue = "0", type = "integer", format
+                // = "int32"))
+                //             @RequestParam(defaultValue = "0")
+                //             int page,
+                //     @Parameter(
+                //                     description = "The limit of results returned by this api",
+                //                     schema =
+                //                             @Schema(
+                //                                     defaultValue = "10",
+                //                                     type = "integer",
+                //                                     format = "int32"))
+                //             @RequestParam(defaultValue = "10")
+                //             int limit)
+            {
+        LOGGER.info(
+                "in searchReports, received: date-start: {}, date-end: {}, reportNo: {}, type: {}",
+                dateStart,
+                dateEnd,
+                reportNo,
+                type);
+        if (dateStart != null && dateEnd != null && !dateStart.isBefore(dateEnd)) {
             return ResponseEntity.badRequest().body("End date must be after start date.");
         }
 
-        if (type != ReportType.notSpecified && type != ReportType.daily && type != ReportType.weekly)
-        {
+        if (type != ReportType.notSpecified
+                && type != ReportType.daily
+                && type != ReportType.weekly) {
             return ResponseEntity.badRequest().body("Unsupported report type");
         }
 
@@ -153,7 +164,9 @@ public class ReportApiController {
         // }
 
         return ResponseEntity.ok()
-        .body(dbReportService.searchReports(dateStart, dateEnd, type,reportNo/* , page, limit*/));
+                .body(
+                        dbReportService.searchReports(
+                                dateStart, dateEnd, type, reportNo /* , page, limit*/));
     }
 
     @Operation(

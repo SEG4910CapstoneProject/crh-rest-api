@@ -15,7 +15,10 @@ public interface DbReportService {
     boolean doesReportExist(int reportId);
 
     SearchReportResponse searchReports(
-            LocalDate dateStart, LocalDate dateEnd, ReportType type, Integer reportNo/* , int page, int limit*/);
+            LocalDate dateStart,
+            LocalDate dateEnd,
+            ReportType type,
+            Integer reportNo /* , int page, int limit*/);
 
     int getLatestReportId();
 

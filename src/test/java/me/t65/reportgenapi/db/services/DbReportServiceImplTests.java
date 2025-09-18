@@ -3,8 +3,6 @@ package me.t65.reportgenapi.db.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import me.t65.reportgenapi.controller.payload.SearchReportDetailsResponse;
-import me.t65.reportgenapi.controller.payload.SearchReportResponse;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
 import me.t65.reportgenapi.db.postgres.entities.*;
@@ -24,7 +22,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @ExtendWith(SpringExtension.class)
@@ -58,80 +55,85 @@ public class DbReportServiceImplTests {
 
     @Autowired DbReportServiceImpl dbService;
 
-//     @Test
-//     public void testSearchReports_success() {
-//         int reportId = 1;
-//         int iocID = 2;
-//         ReportType type = ReportType.daily;
-//         ReportEntity mockReport = mock(ReportEntity.class);
-//         ArticleContentEntity mockReportProperty = mock(ArticleContentEntity.class);
-//         IOCArticlesEntity iocArticlesEntity =
-//                 new IOCArticlesEntity(new IOCArticlesId(iocID, MOCK_ARTICLE_ID));
+    //     @Test
+    //     public void testSearchReports_success() {
+    //         int reportId = 1;
+    //         int iocID = 2;
+    //         ReportType type = ReportType.daily;
+    //         ReportEntity mockReport = mock(ReportEntity.class);
+    //         ArticleContentEntity mockReportProperty = mock(ArticleContentEntity.class);
+    //         IOCArticlesEntity iocArticlesEntity =
+    //                 new IOCArticlesEntity(new IOCArticlesId(iocID, MOCK_ARTICLE_ID));
 
-//         mockFakeArticle(mockReportProperty, iocArticlesEntity);
-//         when(reportRepository.findByReportType(eq(type), any())).thenReturn(List.of(mockReport));
-//         when(iocTypeEntityRepository.findAll()).thenReturn(List.of(new IOCTypeEntity(1, "url")));
+    //         mockFakeArticle(mockReportProperty, iocArticlesEntity);
+    //         when(reportRepository.findByReportType(eq(type),
+    // any())).thenReturn(List.of(mockReport));
+    //         when(iocTypeEntityRepository.findAll()).thenReturn(List.of(new IOCTypeEntity(1,
+    // "url")));
 
-//         when(jsonReportGenerator.generateShortDetails(any(), any(), any(), any()))
-//                 .thenReturn(
-//                         new SearchReportDetailsResponse(
-//                                 reportId,
-//                                 type.toString(),
-//                                 null,
-//                                 null,
-//                                 false,
-//                                 Collections.emptyList(),
-//                                 Collections.emptyList(),
-//                                 Collections.emptyList()));
+    //         when(jsonReportGenerator.generateShortDetails(any(), any(), any(), any()))
+    //                 .thenReturn(
+    //                         new SearchReportDetailsResponse(
+    //                                 reportId,
+    //                                 type.toString(),
+    //                                 null,
+    //                                 null,
+    //                                 false,
+    //                                 Collections.emptyList(),
+    //                                 Collections.emptyList(),
+    //                                 Collections.emptyList()));
 
-//         SearchReportResponse results = dbService.searchReports(null, null, type, 0, 10);
+    //         SearchReportResponse results = dbService.searchReports(null, null, type, 0, 10);
 
-//         assertEquals(1, results.getReports().size());
-//         SearchReportDetailsResponse actual = results.getReports().get(0);
+    //         assertEquals(1, results.getReports().size());
+    //         SearchReportDetailsResponse actual = results.getReports().get(0);
 
-//         assertEquals(reportId, actual.getReportId());
-//         assertEquals(type.toString(), actual.getReportType());
-//         assertEquals(false, actual.getEmailStatus());
-//     }
+    //         assertEquals(reportId, actual.getReportId());
+    //         assertEquals(type.toString(), actual.getReportType());
+    //         assertEquals(false, actual.getEmailStatus());
+    //     }
 
-//     @Test
-//     public void testSearchReports_dateRange_success() {
-//         LocalDate dateStart = LocalDate.parse("2023-01-01");
-//         LocalDate dateEnd = LocalDate.parse("2023-01-31");
+    //     @Test
+    //     public void testSearchReports_dateRange_success() {
+    //         LocalDate dateStart = LocalDate.parse("2023-01-01");
+    //         LocalDate dateEnd = LocalDate.parse("2023-01-31");
 
-//         int reportId = 1;
-//         int iocID = 2;
-//         ReportType type = ReportType.daily;
-//         ReportEntity mockReport = mock(ReportEntity.class);
-//         ArticleContentEntity mockReportProperty = mock(ArticleContentEntity.class);
-//         IOCArticlesEntity iocArticlesEntity =
-//                 new IOCArticlesEntity(new IOCArticlesId(iocID, MOCK_ARTICLE_ID));
+    //         int reportId = 1;
+    //         int iocID = 2;
+    //         ReportType type = ReportType.daily;
+    //         ReportEntity mockReport = mock(ReportEntity.class);
+    //         ArticleContentEntity mockReportProperty = mock(ArticleContentEntity.class);
+    //         IOCArticlesEntity iocArticlesEntity =
+    //                 new IOCArticlesEntity(new IOCArticlesId(iocID, MOCK_ARTICLE_ID));
 
-//         mockFakeArticle(mockReportProperty, iocArticlesEntity);
-//         when(reportRepository.findByGenerateDateBetweenAndReportType(any(), any(), eq(type), any()))
-//                 .thenReturn(List.of(mockReport));
-//         when(iocTypeEntityRepository.findAll()).thenReturn(List.of(new IOCTypeEntity(1, "url")));
-//         when(jsonReportGenerator.generateShortDetails(any(), any(), any(), any()))
-//                 .thenReturn(
-//                         new SearchReportDetailsResponse(
-//                                 reportId,
-//                                 type.toString(),
-//                                 null,
-//                                 null,
-//                                 false,
-//                                 Collections.emptyList(),
-//                                 Collections.emptyList(),
-//                                 Collections.emptyList()));
+    //         mockFakeArticle(mockReportProperty, iocArticlesEntity);
+    //         when(reportRepository.findByGenerateDateBetweenAndReportType(any(), any(), eq(type),
+    // any()))
+    //                 .thenReturn(List.of(mockReport));
+    //         when(iocTypeEntityRepository.findAll()).thenReturn(List.of(new IOCTypeEntity(1,
+    // "url")));
+    //         when(jsonReportGenerator.generateShortDetails(any(), any(), any(), any()))
+    //                 .thenReturn(
+    //                         new SearchReportDetailsResponse(
+    //                                 reportId,
+    //                                 type.toString(),
+    //                                 null,
+    //                                 null,
+    //                                 false,
+    //                                 Collections.emptyList(),
+    //                                 Collections.emptyList(),
+    //                                 Collections.emptyList()));
 
-//         SearchReportResponse results = dbService.searchReports(dateStart, dateEnd, type, 0, 10);
+    //         SearchReportResponse results = dbService.searchReports(dateStart, dateEnd, type, 0,
+    // 10);
 
-//         assertEquals(1, results.getReports().size());
-//         SearchReportDetailsResponse actual = results.getReports().get(0);
+    //         assertEquals(1, results.getReports().size());
+    //         SearchReportDetailsResponse actual = results.getReports().get(0);
 
-//         assertEquals(reportId, actual.getReportId());
-//         assertEquals(type.toString(), actual.getReportType());
-//         assertEquals(false, actual.getEmailStatus());
-//     }
+    //         assertEquals(reportId, actual.getReportId());
+    //         assertEquals(type.toString(), actual.getReportType());
+    //         assertEquals(false, actual.getEmailStatus());
+    //     }
 
     @Test
     public void testGetLatestReportId_emptyRepository() {

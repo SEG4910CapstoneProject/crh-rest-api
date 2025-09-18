@@ -84,7 +84,8 @@ public class JsonReportGenerator {
                 .reportId(reportEntity.getReportId())
                 .reportType(reportEntity.getReportType().toString())
                 .emailStatus(reportEntity.getEmailStatus())
-                .generatedDate(LocalDateTime.ofInstant(reportEntity.getGenerateDate(), ZoneOffset.UTC))
+                .generatedDate(
+                        LocalDateTime.ofInstant(reportEntity.getGenerateDate(), ZoneOffset.UTC))
                 .lastModified(DateUtils.getLastModifiedFromInstant(reportEntity.getLastModified()))
                 .iocs(
                         jsonArticleGenerator.createJsonIocFromIocEntity(

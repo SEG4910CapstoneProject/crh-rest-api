@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import me.t65.reportgenapi.controller.payload.*;
-import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.db.services.DbReportService;
 import me.t65.reportgenapi.db.services.DbStatsService;
@@ -51,7 +50,8 @@ public class ReportApiControllerTests {
     //     LocalDate endLocalDate = LocalDate.parse("2024-01-10");
     //     SearchReportResponse mockSearchReportResponse =
     //             new SearchReportResponse(1, List.of(new SearchReportDetailsResponse()));
-    //     when(dbReportService.searchReports(startLocalDate, endLocalDate, ReportType.daily, 0, 10))
+    //     when(dbReportService.searchReports(startLocalDate, endLocalDate, ReportType.daily, 0,
+    // 10))
     //             .thenReturn(mockSearchReportResponse);
 
     //     ResponseEntity<?> responseEntity =

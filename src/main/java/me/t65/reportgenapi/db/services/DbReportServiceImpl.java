@@ -48,7 +48,6 @@ public class DbReportServiceImpl implements DbReportService {
     private final DbArticlesService dbArticlesService;
     private final Logger LOGGER = LoggerFactory.getLogger(DbReportServiceImpl.class);
 
-
     @Autowired
     public DbReportServiceImpl(
             StreamUtils streamUtils,
@@ -82,8 +81,10 @@ public class DbReportServiceImpl implements DbReportService {
 
     @Override
     public SearchReportResponse searchReports(
-            LocalDate dateStart, LocalDate dateEnd, ReportType type,Integer reportNo/* , int page, int limit*/) 
-        {
+            LocalDate dateStart,
+            LocalDate dateEnd,
+            ReportType type,
+            Integer reportNo /* , int page, int limit*/) {
         // Tech debt: Specification might need to be used here, to manage growing number of filters
 
         // Pageable pageable = PageRequest.of(page, limit, Sort.Direction.DESC, "reportId");
@@ -92,31 +93,41 @@ public class DbReportServiceImpl implements DbReportService {
         List<ReportEntity> reports;
         long totalCount = 0;
         LOGGER.info("Comparing dates and the report number");
-        if (dateStart == null && dateEnd == null)
-        {
-          // all data should be returned
-          reports = (reportNo == 0 ? reportRepository.findAll() : reportRepository.findByReportId(reportNo));// TODO: CAP331, next only get reports respecting the limit asked.
-        } 
-        else if (dateStart == null && dateEnd != null)
-        {
-          Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
-          reports = (reportNo == 0 ? reportRepository.findByGenerateDateLessThanEqual(endDateTime):reportRepository.findByGenerateDateLessThanEqualAndReportId(endDateTime, reportNo));
-        }
-        else if (dateStart != null && dateEnd == null)
-        {
-          Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
-          reports = (reportNo == 0 ? reportRepository.findByGenerateDateGreaterThanEqual(startDateTime):reportRepository.findByGenerateDateGreaterThanEqualAndReportId(startDateTime, reportNo));
-        }
-        else
-        {
-          Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
-          Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
-          reports = (reportNo == 0 ? reportRepository.findByGenerateDateBetween(startDateTime, endDateTime):reportRepository.findByGenerateDateBetweenAndReportId(startDateTime,endDateTime,reportNo)); 
+        if (dateStart == null && dateEnd == null) {
+            // all data should be returned
+            reports =
+                    (reportNo == 0
+                            ? reportRepository.findAll()
+                            : reportRepository.findByReportId(
+                                    reportNo)); // TODO: CAP331, next only get reports respecting
+            // the limit asked.
+        } else if (dateStart == null && dateEnd != null) {
+            Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
+            reports =
+                    (reportNo == 0
+                            ? reportRepository.findByGenerateDateLessThanEqual(endDateTime)
+                            : reportRepository.findByGenerateDateLessThanEqualAndReportId(
+                                    endDateTime, reportNo));
+        } else if (dateStart != null && dateEnd == null) {
+            Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
+            reports =
+                    (reportNo == 0
+                            ? reportRepository.findByGenerateDateGreaterThanEqual(startDateTime)
+                            : reportRepository.findByGenerateDateGreaterThanEqualAndReportId(
+                                    startDateTime, reportNo));
+        } else {
+            Instant startDateTime = dateStart.atStartOfDay().toInstant(ZoneOffset.UTC);
+            Instant endDateTime = dateEnd.atStartOfDay().toInstant(ZoneOffset.UTC);
+            reports =
+                    (reportNo == 0
+                            ? reportRepository.findByGenerateDateBetween(startDateTime, endDateTime)
+                            : reportRepository.findByGenerateDateBetweenAndReportId(
+                                    startDateTime, endDateTime, reportNo));
         }
 
-        if (type != ReportType.notSpecified)
-        {
-                reports = reports.stream().filter(report -> report.getReportType().equals(type)).toList();
+        if (type != ReportType.notSpecified) {
+            reports =
+                    reports.stream().filter(report -> report.getReportType().equals(type)).toList();
         }
 
         totalCount = reports.size();
