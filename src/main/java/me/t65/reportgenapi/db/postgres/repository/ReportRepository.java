@@ -19,12 +19,30 @@ public interface ReportRepository extends JpaRepository<ReportEntity, Integer> {
             ReportType reportType,
             Pageable pageable);
 
+    List<ReportEntity> findByGenerateDateLessThanEqual(Instant generateDateEnd);
+
+    List<ReportEntity> findByGenerateDateLessThanEqualAndReportId(
+            Instant generateDateEnd, long reportId);
+
+    List<ReportEntity> findByGenerateDateGreaterThanEqual(Instant generateDateStart);
+
+    List<ReportEntity> findByGenerateDateGreaterThanEqualAndReportId(
+            Instant generateDateStart, long reportId);
+
+    List<ReportEntity> findByGenerateDateBetween(
+            Instant generateDateStart, Instant generateDateEnd);
+
+    List<ReportEntity> findByGenerateDateBetweenAndReportId(
+            Instant generateDateStart, Instant generateDateEnd, long reportId);
+
+    List<ReportEntity> findByReportId(long reportId);
+
     long countByGenerateDateBetweenAndReportType(
             Instant generateDateStart, Instant generateDateEnd, ReportType reportType);
 
     long countByReportType(ReportType reportType);
 
-    List<ReportEntity> findByReportType(ReportType reportType, Pageable pageable);
+    List<ReportEntity> findByReportType(ReportType reportType /* , Pageable pageable*/);
 
     ReportEntity findFirstByOrderByGenerateDateDesc();
 }
