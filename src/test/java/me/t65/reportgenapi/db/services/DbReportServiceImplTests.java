@@ -55,7 +55,8 @@ public class DbReportServiceImplTests {
     @MockBean StatisticsRepository statisticsRepository;
     @MockBean CategoryRepository categoryRepository;
     @MockBean ArticleCategoryRepository articleCategoryRepository;
-
+    @MockBean ArticleTypeRepository articleTypeRepository;
+    @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
     @Autowired DbReportServiceImpl dbService;
 
     @Test
