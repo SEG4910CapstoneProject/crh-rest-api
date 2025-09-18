@@ -12,7 +12,6 @@ import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
 import me.t65.reportgenapi.db.postgres.entities.*;
 import me.t65.reportgenapi.db.postgres.entities.id.ArticleCategoryId;
-import me.t65.reportgenapi.db.postgres.entities.id.ArticleTypeEntity;
 import me.t65.reportgenapi.db.postgres.entities.id.IOCArticlesId;
 import me.t65.reportgenapi.db.postgres.entities.id.ReportArticlesId;
 import me.t65.reportgenapi.db.postgres.repository.*;
