@@ -31,10 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -63,7 +60,9 @@ public class DbArticlesServiceImplTests {
     @MockBean IOCTypeEntityRepository iocTypeEntityRepository;
     @MockBean ArticleCategoryRepository articleCategoryRepository;
     @MockBean CategoryRepository categoryRepository;
+    @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
 
+    @MockBean ArticleTypeRepository articleTypeRepository;
     @MockBean DateService dateService;
 
     @Autowired DbArticlesServiceImpl dbArticlesService;
@@ -571,5 +570,46 @@ public class DbArticlesServiceImplTests {
             Integer reportId, UUID articleId, short rank, boolean suggestion) {
         return new ReportArticlesEntity(
                 new ReportArticlesId(reportId, articleId), rank, suggestion);
+    }
+
+    @Test
+    void testGetArticleToCategoryEntityMap_success() {
+        // Define the input UUIDs
+        UUID articleId1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+        UUID articleId2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+        Collection<UUID> articleIds = Arrays.asList(articleId1, articleId2);
+
+        // Create mock ArticleCategoryEntity objects
+        ArticleCategoryEntity acEntity1 = new ArticleCategoryEntity();
+        acEntity1.setArticleCategoryId(new ArticleCategoryId(1, articleId1));
+        ArticleCategoryEntity acEntity2 = new ArticleCategoryEntity();
+        acEntity2.setArticleCategoryId(new ArticleCategoryId(2, articleId2));
+        List<ArticleCategoryEntity> acEntities = Arrays.asList(acEntity1, acEntity2);
+
+        // Create mock CategoryEntity objects
+        CategoryEntity cEntity1 = new CategoryEntity();
+        cEntity1.setCategoryId(1);
+        cEntity1.setCategoryName("Category 1");
+        CategoryEntity cEntity2 = new CategoryEntity();
+        cEntity2.setCategoryId(2);
+        cEntity2.setCategoryName("Category 2");
+        List<CategoryEntity> cEntities = Arrays.asList(cEntity1, cEntity2);
+
+        when(articleCategoryRepository.findByArticleCategoryId_ArticleIdIn(articleIds))
+                .thenReturn(acEntities);
+        when(categoryRepository.findAllById(anySet())).thenReturn(cEntities);
+
+        Map<UUID, CategoryEntity> result =
+                dbArticlesService.getArticleToCategoryEntityMap(articleIds);
+
+        verify(articleCategoryRepository).findByArticleCategoryId_ArticleIdIn(articleIds);
+        verify(categoryRepository).findAllById(Set.of(1, 2));
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey(articleId1));
+        assertTrue(result.containsKey(articleId2));
+        assertEquals("Category 1", result.get(articleId1).getCategoryName());
+        assertEquals("Category 2", result.get(articleId2).getCategoryName());
     }
 }

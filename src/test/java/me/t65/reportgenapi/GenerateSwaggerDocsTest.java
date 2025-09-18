@@ -1,11 +1,15 @@
 package me.t65.reportgenapi;
 
+import me.t65.reportgenapi.db.postgres.repository.ArticleTypeRepository;
+import me.t65.reportgenapi.db.postgres.repository.MonthlyArticlesRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 
 import java.io.BufferedWriter;
@@ -21,6 +25,8 @@ import java.io.IOException;
 @AutoConfigureMockMvc
 public class GenerateSwaggerDocsTest {
     private static final String SWAGGER_FILE = "CyberReportHub-api.json";
+    @MockBean ArticleTypeRepository articleTypeRepository;
+    @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
 
     @Autowired private TestRestTemplate restTemplate;
 
