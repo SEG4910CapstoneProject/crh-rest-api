@@ -15,7 +15,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -155,7 +154,7 @@ public class JsonReportGeneratorTests {
                 LocalDateTime.ofInstant(REPORT_ENTITY.getLastModified(), ZoneOffset.UTC),
                 actual.getLastModified());
         assertEquals(
-                LocalDate.ofInstant(REPORT_ENTITY.getGenerateDate(), ZoneOffset.UTC),
+                LocalDateTime.ofInstant(REPORT_ENTITY.getGenerateDate(), ZoneOffset.UTC),
                 actual.getGeneratedDate());
         assertEquals(2, actual.getArticleTitles().size());
         assertEquals(expectedTitles, actual.getArticleTitles());
