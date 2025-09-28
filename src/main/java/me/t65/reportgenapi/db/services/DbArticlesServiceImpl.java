@@ -541,8 +541,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                                         Optional.of(
                                                 monthlyArticle
                                                         .getViewCount()), // View count wrapped in
-                                        // Optional
-                                        response.getTitle());
+                                        response.getTitle(),
+                                        UUID.fromString(response.getArticleId()));
                         articleResponses.add(finalResponse);
                     });
         }
@@ -574,8 +574,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                                         Optional.of(
                                                 monthlyArticle
                                                         .getViewCount()), // View count wrapped in
-                                        // Optional
-                                        response.getTitle());
+                                        response.getTitle(),
+                                        UUID.fromString(response.getArticleId()));
 
                         articleResponses.add(finalResponse);
                     });
