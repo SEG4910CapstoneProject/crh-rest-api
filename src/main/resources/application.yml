@@ -34,3 +34,8 @@ spring:
       database: ${MONGO_DB_NAME}
       authentication-database: ${MONGO_AUTH_DB:admin}
       uuid-representation: STANDARD
+
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration:
+      ms: ${JWT_EXPIRATION_MS}
