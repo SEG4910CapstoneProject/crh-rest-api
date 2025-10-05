@@ -2,8 +2,8 @@ package me.t65.reportgenapi;
 
 import me.t65.reportgenapi.db.postgres.repository.ArticleTypeRepository;
 import me.t65.reportgenapi.db.postgres.repository.MonthlyArticlesRepository;
-
 import me.t65.reportgenapi.db.postgres.repository.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -25,11 +25,10 @@ import java.io.IOException;
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
-                // Explicitly provide the required JWT properties to the test context
-                "jwt.secret=akXxO59wTTyt6bm9J7oVutqJco5Y9p4OnhPSVYiIXq+E9T2Umv3K0E1vZnlwA9JQwVRbuz9j6mhKgO2TT5INBQ==",
-                "jwt.expiration.ms=86400000"
-        }
-)
+            // Explicitly provide the required JWT properties to the test context
+            "jwt.secret=akXxO59wTTyt6bm9J7oVutqJco5Y9p4OnhPSVYiIXq+E9T2Umv3K0E1vZnlwA9JQwVRbuz9j6mhKgO2TT5INBQ==",
+            "jwt.expiration.ms=86400000"
+        })
 @EnableAutoConfiguration(exclude = DataSourceAutoConfiguration.class)
 @AutoConfigureMockMvc
 public class GenerateSwaggerDocsTest {
@@ -37,11 +36,8 @@ public class GenerateSwaggerDocsTest {
     @MockBean ArticleTypeRepository articleTypeRepository;
     @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
 
-    @MockBean
-    UserRepository userRepository;
-    @MockBean
-    BCryptPasswordEncoder passwordEncoder;
-
+    @MockBean UserRepository userRepository;
+    @MockBean BCryptPasswordEncoder passwordEncoder;
 
     @Autowired private TestRestTemplate restTemplate;
 
