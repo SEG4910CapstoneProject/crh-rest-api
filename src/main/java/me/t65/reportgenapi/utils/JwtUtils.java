@@ -3,6 +3,7 @@ package me.t65.reportgenapi.utils;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,15 +27,23 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-
     public String getUserNameFromJwtToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(key()).build()
-                .parseClaimsJws(token).getBody().getSubject(); // Subject is the email
+        return Jwts.parserBuilder()
+                .setSigningKey(key())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject(); // Subject is the email
     }
 
     public String getRoleFromJwtToken(String token) {
-        return (String) Jwts.parserBuilder().setSigningKey(key()).build()
-                .parseClaimsJws(token).getBody().get("role");
+        return (String)
+                Jwts.parserBuilder()
+                        .setSigningKey(key())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
+                        .get("role");
     }
 
     public boolean validateJwtToken(String authToken) {

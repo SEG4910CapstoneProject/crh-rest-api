@@ -2,6 +2,7 @@ package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.db.postgres.entities.UserEntity;
 import me.t65.reportgenapi.db.postgres.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,12 +32,16 @@ public class DbUserServiceImpl implements DbUserService {
 
     @Override
     public Optional<UserEntity> login(String email, String rawPassword) {
-        return userRepository.findByEmail(email)
-                .filter(user -> {
-                    boolean matches = passwordEncoder.matches(rawPassword, user.getPasswordHash());
-                    System.out.println("DEBUG: Checking password for " + email + " → " + matches);
-                    return matches;
-                });
+        return userRepository
+                .findByEmail(email)
+                .filter(
+                        user -> {
+                            boolean matches =
+                                    passwordEncoder.matches(rawPassword, user.getPasswordHash());
+                            System.out.println(
+                                    "DEBUG: Checking password for " + email + " → " + matches);
+                            return matches;
+                        });
     }
 
     @Override

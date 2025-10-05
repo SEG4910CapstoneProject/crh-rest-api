@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface DbUserService {
     UserEntity register(String email, String rawPassword, String role);
+
     Optional<UserEntity> login(String email, String rawPassword);
+
     Optional<UserEntity> getUserByEmail(String email);
 }
