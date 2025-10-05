@@ -10,3 +10,10 @@ springdoc:
     enabled: true
   swagger-ui:
     enabled: true
+
+feature:
+  auth:
+    enabled: false
+spring:
+  jwt:
+    secret: "dummysecretforunittest"

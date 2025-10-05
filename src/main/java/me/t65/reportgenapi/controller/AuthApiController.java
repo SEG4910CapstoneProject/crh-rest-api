@@ -10,6 +10,7 @@ import me.t65.reportgenapi.utils.JwtUtils;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/auth")
 @CrossOrigin(origins = "http://localhost:4200")
+@ConditionalOnProperty(name = "feature.auth.enabled", havingValue = "true", matchIfMissing = true)
 public class AuthApiController {
 
     private final DbUserService userService;
@@ -28,7 +30,7 @@ public class AuthApiController {
     @Value("${spring.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${spring.jwt.expiration.ms}")
+    @Value("${spring.jwt.expiration.ms:86400000}")
     private long jwtExpirationMs;
 
     @Autowired

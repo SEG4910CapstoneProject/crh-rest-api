@@ -1,7 +1,7 @@
 package me.t65.reportgenapi.config;
 
 import me.t65.reportgenapi.utils.AuthTokenFilter;
-
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@ConditionalOnProperty(name = "feature.auth.enabled", havingValue = "true", matchIfMissing = true)
 public class SecurityConfig {
 
     @Bean

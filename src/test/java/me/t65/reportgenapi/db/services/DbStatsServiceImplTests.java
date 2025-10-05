@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
@@ -43,6 +44,9 @@ public class DbStatsServiceImplTests {
     @MockBean ArticleTypeRepository articleTypeRepository;
     @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
     @Autowired DbStatsServiceImpl dbStatsService;
+
+    @MockBean UserRepository userRepository;
+    @MockBean BCryptPasswordEncoder passwordEncoder;
 
     @Test
     public void testAddStatsToReport_success() {
