@@ -15,8 +15,7 @@ class ReportGenerationRestApiApplicationTests {
     @MockBean ArticleTypeRepository articleTypeRepository;
     @MockBean MonthlyArticlesRepository monthlyArticlesRepository;
     @MockBean UserRepository userRepository;
-    @MockBean
-    BCryptPasswordEncoder passwordEncoder;
+    @MockBean BCryptPasswordEncoder passwordEncoder;
 
     @Test
     void contextLoads() {}

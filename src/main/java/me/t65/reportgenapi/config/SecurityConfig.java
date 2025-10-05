@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.config;
 
 import me.t65.reportgenapi.utils.AuthTokenFilter;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
