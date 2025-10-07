@@ -604,6 +604,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     }
 
     @Override
+    @Transactional
     public void removeFavourite(Long userId, UUID articleId) {
         if (userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)) {
             userFavouriteRepository.deleteByUserIdAndArticleId(userId, articleId);
