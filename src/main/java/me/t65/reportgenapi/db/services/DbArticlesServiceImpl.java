@@ -583,4 +583,52 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         return articleResponses;
     }
+
+    @Autowired
+    private UserFavouriteRepository userFavouriteRepository;
+
+    @Override
+    public boolean addFavourite(Long userId, UUID articleId) {
+        // Check article exists
+        if (!articlesRepository.existsById(articleId)) {
+            return false;
+        }
+
+        // Prevent duplicate entries
+        if (userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)) {
+            return true;
+        }
+
+        UserFavouriteEntity favourite = new UserFavouriteEntity(userId, articleId, Instant.now());
+        userFavouriteRepository.save(favourite);
+        return true;
+    }
+
+    @Override
+    public void removeFavourite(Long userId, UUID articleId) {
+        if (userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)) {
+            userFavouriteRepository.deleteByUserIdAndArticleId(userId, articleId);
+        }
+    }
+
+    @Override
+    public List<JsonArticleReportResponse> getFavouritesForUser(Long userId) {
+        List<UserFavouriteEntity> favourites = userFavouriteRepository.findByUserId(userId);
+
+        if (favourites.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<UUID> articleIds = favourites.stream()
+                .map(UserFavouriteEntity::getArticleId)
+                .toList();
+
+        List<JsonArticleReportResponse> result = new ArrayList<>();
+        for (UUID articleId : articleIds) {
+            getArticleById(articleId).ifPresent(result::add);
+        }
+
+        return result;
+    }
+
 }

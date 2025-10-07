@@ -59,6 +59,8 @@ public class DbReportServiceImplTests {
     @MockBean UserRepository userRepository;
     @MockBean BCryptPasswordEncoder passwordEncoder;
 
+    @MockBean private UserFavouriteRepository userFavouriteRepository;
+
     @Autowired DbReportServiceImpl dbService;
 
     //     @Test

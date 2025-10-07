@@ -48,6 +48,8 @@ public class DbStatsServiceImplTests {
     @MockBean UserRepository userRepository;
     @MockBean BCryptPasswordEncoder passwordEncoder;
 
+    @MockBean private UserFavouriteRepository userFavouriteRepository;
+
     @Test
     public void testAddStatsToReport_success() {
         when(statisticsRepository.existsById(any())).thenReturn(true);
