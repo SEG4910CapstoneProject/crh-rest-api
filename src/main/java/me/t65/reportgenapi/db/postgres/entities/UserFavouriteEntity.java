@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.db.postgres.entities;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
 import java.io.Serializable;
@@ -8,8 +9,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Represents a favourite article entry for a specific user.
- * Each row links one user to one article.
+ * Represents a favourite article entry for a specific user. Each row links one user to one article.
  */
 @Getter
 @Setter

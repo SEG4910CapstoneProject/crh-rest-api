@@ -584,8 +584,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         return articleResponses;
     }
 
-    @Autowired
-    private UserFavouriteRepository userFavouriteRepository;
+    @Autowired private UserFavouriteRepository userFavouriteRepository;
 
     @Override
     public boolean addFavourite(Long userId, UUID articleId) {
@@ -605,6 +604,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     }
 
     @Override
+    @Transactional
     public void removeFavourite(Long userId, UUID articleId) {
         if (userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)) {
             userFavouriteRepository.deleteByUserIdAndArticleId(userId, articleId);
@@ -619,9 +619,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             return Collections.emptyList();
         }
 
-        List<UUID> articleIds = favourites.stream()
-                .map(UserFavouriteEntity::getArticleId)
-                .toList();
+        List<UUID> articleIds = favourites.stream().map(UserFavouriteEntity::getArticleId).toList();
 
         List<JsonArticleReportResponse> result = new ArrayList<>();
         for (UUID articleId : articleIds) {
@@ -630,5 +628,4 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         return result;
     }
-
 }
