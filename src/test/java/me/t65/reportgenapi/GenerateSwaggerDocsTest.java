@@ -2,8 +2,8 @@ package me.t65.reportgenapi;
 
 import me.t65.reportgenapi.db.postgres.repository.ArticleTypeRepository;
 import me.t65.reportgenapi.db.postgres.repository.MonthlyArticlesRepository;
-import me.t65.reportgenapi.db.postgres.repository.UserRepository;
 import me.t65.reportgenapi.db.postgres.repository.UserFavouriteRepository;
+import me.t65.reportgenapi.db.postgres.repository.UserRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
