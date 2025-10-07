@@ -3,6 +3,7 @@ package me.t65.reportgenapi;
 import me.t65.reportgenapi.db.postgres.repository.ArticleTypeRepository;
 import me.t65.reportgenapi.db.postgres.repository.MonthlyArticlesRepository;
 import me.t65.reportgenapi.db.postgres.repository.UserRepository;
+import me.t65.reportgenapi.db.postgres.repository.UserFavouriteRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,8 @@ public class GenerateSwaggerDocsTest {
 
     @MockBean UserRepository userRepository;
     @MockBean BCryptPasswordEncoder passwordEncoder;
+
+    @MockBean private UserFavouriteRepository userFavouriteRepository;
 
     @Autowired private TestRestTemplate restTemplate;
 

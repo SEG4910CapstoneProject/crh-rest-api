@@ -69,6 +69,8 @@ public class DbArticlesServiceImplTests {
     @MockBean UserRepository userRepository;
     @MockBean BCryptPasswordEncoder passwordEncoder;
 
+    @MockBean private UserFavouriteRepository userFavouriteRepository;
+
     @Autowired DbArticlesServiceImpl dbArticlesService;
 
     @Test
