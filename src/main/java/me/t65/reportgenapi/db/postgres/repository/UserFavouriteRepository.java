@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface UserFavouriteRepository extends JpaRepository<UserFavouriteEntity, UserFavouriteEntity.PK> {
+public interface UserFavouriteRepository
+        extends JpaRepository<UserFavouriteEntity, UserFavouriteEntity.PK> {
 
     List<UserFavouriteEntity> findByUserId(Long userId);
 
