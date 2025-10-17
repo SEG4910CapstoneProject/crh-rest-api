@@ -58,4 +58,8 @@ public interface DbArticlesService {
 
     /** Get all favourite articles for a user. */
     List<JsonArticleReportResponse> getFavouritesForUser(Long userId);
+
+    /** Ingest a new article from URL  */
+    boolean ingestFromUrl(String link, String title, String description);
+
 }

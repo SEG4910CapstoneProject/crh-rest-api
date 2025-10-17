@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import me.t65.reportgenapi.controller.payload.ArticleByLinkRequest;
+import me.t65.reportgenapi.controller.payload.ArticleIngestRequest;
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.controller.payload.UidResponse;
 import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
@@ -16,10 +17,15 @@ import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.utils.IdGenerator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -35,6 +41,7 @@ import java.util.UUID;
 public class ArticleApiController {
 
     private final DbArticlesService dbArticlesService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleApiController.class);
 
     private final IdGenerator idGenerator;
     private List<MonthlyArticlesEntity> top10Articles;
@@ -108,13 +115,58 @@ public class ArticleApiController {
     }
 
     @Operation(
-            summary = "Update article",
-            description = "This endpoint updates the specified article")
-    @ApiResponses(
-            value = {
-                @ApiResponse(responseCode = "204", description = "Article edit successful"),
-                @ApiResponse(responseCode = "404", description = "Unable to edit article"),
-            })
+            summary = "Ingest a new article from a URL",
+            description = "Accepts a URL and optional description; triggers ingestion/classification pipeline."
+    )
+
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Article ingestion started successfully"),
+            @ApiResponse(responseCode = "400", description = "Missing required link"),
+            @ApiResponse(responseCode = "500", description = "Error during ingestion")
+    })
+
+    @PostMapping("/ingest")
+    public ResponseEntity<?> ingestArticle(@RequestBody ArticleIngestRequest request) {
+        LOGGER.info("Ingest request received: link='{}', title='{}'", request.getLink(), request.getTitle());
+        try {
+            if (request.getLink() == null || request.getLink().isBlank()) {
+                LOGGER.warn("Ingest failed — missing link.");
+                return ResponseEntity.badRequest().body(Map.of("message", "Link is required"));
+            }
+            if (request.getTitle() == null || request.getTitle().isBlank()) {
+                LOGGER.warn("Ingest failed — missing title.");
+                return ResponseEntity.badRequest().body(Map.of("message", "Title is required"));
+            }
+
+            try {
+                new URL(request.getLink()); // throws MalformedURLException if invalid
+            } catch (MalformedURLException e) {
+                LOGGER.warn(" Invalid URL provided: {}", request.getLink());
+                return ResponseEntity.badRequest().body(Map.of("message", "Please provide a valid URL."));
+            }
+
+            boolean added = dbArticlesService.ingestFromUrl(
+                    request.getLink(),
+                    request.getTitle(),
+                    request.getDescription()
+            );
+
+            if (!added) {
+                LOGGER.info("Article already exists: {}", request.getLink());
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("message", "Article already exists"));
+            }
+
+            LOGGER.info("Successfully ingested new article: {}", request.getLink());
+            return ResponseEntity.ok(Map.of("message", "Article successfully ingested"));
+
+        } catch (Exception e) {
+            LOGGER.error("Error during ingestion for link '{}': {}", request.getLink(), e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to ingest article: " + e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}")
     public ResponseEntity<?> editArticle(
             @Parameter(description = "The article id", required = true) @PathVariable("id")
