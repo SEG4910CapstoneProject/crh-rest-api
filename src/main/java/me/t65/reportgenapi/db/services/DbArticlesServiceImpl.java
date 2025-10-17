@@ -356,7 +356,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         ArticlesEntity articlesEntity =
                 new ArticlesEntity(
                         articleId,
-                        1, //We are indicating that all manually added articles are from BleepingComputer.
+                        1, // We are indicating that all manually added articles are from
+                        // BleepingComputer.
                         dateService.getCurrentInstant(),
                         publishDate,
                         false,
@@ -645,8 +646,10 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             }
 
             String safeTitle = (title == null || title.isBlank()) ? "Untitled Article" : title;
-            String safeDescription = (description == null || description.isBlank())
-                    ? "No description provided." : description;
+            String safeDescription =
+                    (description == null || description.isBlank())
+                            ? "No description provided."
+                            : description;
             LocalDate publishDate = LocalDate.now();
 
             LOGGER.debug("Cleaned title='{}', desc length={}", safeTitle, safeDescription.length());
@@ -659,8 +662,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                     safeTitle,
                     link,
                     safeDescription,
-                    publishDate.atStartOfDay().toInstant(ZoneOffset.UTC)
-            );
+                    publishDate.atStartOfDay().toInstant(ZoneOffset.UTC));
 
             LOGGER.info("Successfully ingested and saved article: {}", link);
             return true;

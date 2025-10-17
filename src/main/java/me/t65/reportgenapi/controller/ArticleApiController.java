@@ -116,18 +116,23 @@ public class ArticleApiController {
 
     @Operation(
             summary = "Ingest a new article from a URL",
-            description = "Accepts a URL and optional description; triggers ingestion/classification pipeline."
-    )
-
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Article ingestion started successfully"),
-            @ApiResponse(responseCode = "400", description = "Missing required link"),
-            @ApiResponse(responseCode = "500", description = "Error during ingestion")
-    })
-
+            description =
+                    "Accepts a URL and optional description; triggers ingestion/classification"
+                            + " pipeline.")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Article ingestion started successfully"),
+                @ApiResponse(responseCode = "400", description = "Missing required link"),
+                @ApiResponse(responseCode = "500", description = "Error during ingestion")
+            })
     @PostMapping("/ingest")
     public ResponseEntity<?> ingestArticle(@RequestBody ArticleIngestRequest request) {
-        LOGGER.info("Ingest request received: link='{}', title='{}'", request.getLink(), request.getTitle());
+        LOGGER.info(
+                "Ingest request received: link='{}', title='{}'",
+                request.getLink(),
+                request.getTitle());
         try {
             if (request.getLink() == null || request.getLink().isBlank()) {
                 LOGGER.warn("Ingest failed — missing link.");
@@ -142,14 +147,13 @@ public class ArticleApiController {
                 new URL(request.getLink()); // throws MalformedURLException if invalid
             } catch (MalformedURLException e) {
                 LOGGER.warn(" Invalid URL provided: {}", request.getLink());
-                return ResponseEntity.badRequest().body(Map.of("message", "Please provide a valid URL."));
+                return ResponseEntity.badRequest()
+                        .body(Map.of("message", "Please provide a valid URL."));
             }
 
-            boolean added = dbArticlesService.ingestFromUrl(
-                    request.getLink(),
-                    request.getTitle(),
-                    request.getDescription()
-            );
+            boolean added =
+                    dbArticlesService.ingestFromUrl(
+                            request.getLink(), request.getTitle(), request.getDescription());
 
             if (!added) {
                 LOGGER.info("Article already exists: {}", request.getLink());
@@ -161,7 +165,11 @@ public class ArticleApiController {
             return ResponseEntity.ok(Map.of("message", "Article successfully ingested"));
 
         } catch (Exception e) {
-            LOGGER.error("Error during ingestion for link '{}': {}", request.getLink(), e.getMessage(), e);
+            LOGGER.error(
+                    "Error during ingestion for link '{}': {}",
+                    request.getLink(),
+                    e.getMessage(),
+                    e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to ingest article: " + e.getMessage()));
         }
