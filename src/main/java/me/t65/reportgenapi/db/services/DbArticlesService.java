@@ -48,7 +48,7 @@ public interface DbArticlesService {
 
     public Optional<MonthlyArticlesEntity> incrementViewCount(UUID articleId);
 
-    public List<MonthlyArticleDTO> getArticlesOfNote();
+    List<JsonArticleReportResponse> getArticlesOfNote();
 
     /** Add an article to a user's favourites. Returns true if successful. */
     boolean addFavourite(Long userId, UUID articleId);
