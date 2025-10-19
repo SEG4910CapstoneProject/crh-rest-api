@@ -554,7 +554,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     @Override
     public List<JsonArticleReportResponse> getArticlesOfNote() {
         // Get the "articles of note" from the monthly table
-        List<MonthlyArticlesEntity> articlesOfNote = monthlyArticlesRepository.findByIsArticleOfNoteTrue();
+        List<MonthlyArticlesEntity> articlesOfNote =
+                monthlyArticlesRepository.findByIsArticleOfNoteTrue();
 
         if (articlesOfNote.isEmpty()) {
             return Collections.emptyList();
@@ -564,8 +565,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         for (MonthlyArticlesEntity monthlyArticle : articlesOfNote) {
             // Fetch full article details
-            getArticleById(monthlyArticle.getArticleId())
-                    .ifPresent(responses::add);
+            getArticleById(monthlyArticle.getArticleId()).ifPresent(responses::add);
         }
 
         return responses;
