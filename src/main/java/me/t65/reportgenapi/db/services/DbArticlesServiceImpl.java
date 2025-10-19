@@ -551,38 +551,24 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         return articleResponses;
     }
 
-    public List<MonthlyArticleDTO> getArticlesOfNote() {
-        // Get the articles of note from the monthly articles table
+    @Override
+    public List<JsonArticleReportResponse> getArticlesOfNote() {
+        // Get the "articles of note" from the monthly table
         List<MonthlyArticlesEntity> articlesOfNote =
                 monthlyArticlesRepository.findByIsArticleOfNoteTrue();
 
-        // List to store the final responses
-        List<MonthlyArticleDTO> articleResponses = new ArrayList<>();
-
-        for (MonthlyArticlesEntity monthlyArticle : articlesOfNote) {
-            // Fetch the article details by articleId
-            Optional<JsonArticleReportResponse> articleResponse =
-                    getArticleById(monthlyArticle.getArticleId());
-
-            // If the article is found, add it to the list
-            articleResponse.ifPresent(
-                    response -> {
-                        // Create a new MonthlyArticleDTO that includes the URL and view count
-                        // (optional)
-                        MonthlyArticleDTO finalResponse =
-                                new MonthlyArticleDTO(
-                                        response.getLink(), // URL
-                                        Optional.of(
-                                                monthlyArticle
-                                                        .getViewCount()), // View count wrapped in
-                                        response.getTitle(),
-                                        UUID.fromString(response.getArticleId()));
-
-                        articleResponses.add(finalResponse);
-                    });
+        if (articlesOfNote.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        return articleResponses;
+        List<JsonArticleReportResponse> responses = new ArrayList<>();
+
+        for (MonthlyArticlesEntity monthlyArticle : articlesOfNote) {
+            // Fetch full article details
+            getArticleById(monthlyArticle.getArticleId()).ifPresent(responses::add);
+        }
+
+        return responses;
     }
 
     @Autowired private UserFavouriteRepository userFavouriteRepository;

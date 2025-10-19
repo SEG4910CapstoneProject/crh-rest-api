@@ -375,8 +375,8 @@ public class ArticleApiController {
                         content = @Content(mediaType = "application/json"))
             })
     @GetMapping("/articles-of-note")
-    public ResponseEntity<List<MonthlyArticleDTO>> getArticlesOfNote() {
-        List<MonthlyArticleDTO> articlesOfNote = dbArticlesService.getArticlesOfNote();
+    public ResponseEntity<List<JsonArticleReportResponse>> getArticlesOfNote() {
+        List<JsonArticleReportResponse> articlesOfNote = dbArticlesService.getArticlesOfNote();
         return articlesOfNote.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(articlesOfNote);
