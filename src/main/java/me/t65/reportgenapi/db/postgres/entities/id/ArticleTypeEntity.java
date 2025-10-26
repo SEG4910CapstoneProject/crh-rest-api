@@ -17,6 +17,14 @@ public class ArticleTypeEntity {
     @Column(name = "article_type")
     private String articleType;
 
+    public ArticleTypeEntity() {
+    }
+
+    public ArticleTypeEntity(String articleType, UUID articleId) {
+        this.articleType = articleType;
+        this.articleId = articleId;
+    }
+
     // Getters and setters
     public UUID getArticleId() {
         return articleId;
