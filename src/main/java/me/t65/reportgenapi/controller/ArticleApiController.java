@@ -389,5 +389,4 @@ public class ArticleApiController {
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(manualArticles);
     }
-
 }

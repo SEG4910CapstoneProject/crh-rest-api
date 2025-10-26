@@ -159,5 +159,4 @@ public class ArticlesRepositoryStub implements ArticlesRepository {
     public List<ArticlesEntity> findBySourceId(Integer sourceId) {
         return List.of();
     }
-
 }

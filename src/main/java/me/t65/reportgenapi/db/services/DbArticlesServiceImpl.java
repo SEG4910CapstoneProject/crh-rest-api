@@ -382,7 +382,6 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         return responses;
     }
 
-
     public Map<UUID, CategoryEntity> getArticleToCategoryEntityMap(Collection<UUID> articleIds) {
         Map<UUID, ArticleCategoryEntity> articleIdToCategoryEntityMap =
                 streamUtils.getIdObjectMap(
