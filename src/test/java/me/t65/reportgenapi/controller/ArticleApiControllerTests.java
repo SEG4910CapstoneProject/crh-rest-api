@@ -1,7 +1,6 @@
 package me.t65.reportgenapi.controller;
 
 import static com.mongodb.internal.connection.tlschannel.util.Util.assertTrue;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
@@ -55,8 +54,12 @@ public class ArticleApiControllerTests {
     }
 
     private MonthlyArticleDTO createMockDTO(UUID id) {
-        return new MonthlyArticleDTO(id.toString(), Optional.of(10), "DTO Title", id);
-    }
+        return new MonthlyArticleDTO(
+                id.toString(),
+                Optional.of(10),
+                "DTO Title",
+                id
+        );    }
 
     private MonthlyArticlesEntity createMockEntity(UUID id) {
         MonthlyArticlesEntity entity = new MonthlyArticlesEntity();
@@ -182,8 +185,7 @@ public class ArticleApiControllerTests {
         List<JsonArticleReportResponse> articles = Arrays.asList(createMockResponse(CUSTOM_UID_1));
         when(dbArticlesService.getArticlesByType(type)).thenReturn(articles);
 
-        ResponseEntity<List<JsonArticleReportResponse>> actual =
-                articleApiController.getArticlesByType(type);
+        ResponseEntity<List<JsonArticleReportResponse>> actual = articleApiController.getArticlesByType(type);
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertEquals(articles.size(), actual.getBody().size());
@@ -195,8 +197,8 @@ public class ArticleApiControllerTests {
         String type = "EMPTY_TYPE";
         when(dbArticlesService.getArticlesByType(type)).thenReturn(Collections.emptyList());
 
-        ResponseEntity<List<JsonArticleReportResponse>> actual =
-                articleApiController.getArticlesByType(type);
+
+        ResponseEntity<List<JsonArticleReportResponse>> actual = articleApiController.getArticlesByType(type);
 
         assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
         verify(dbArticlesService, times(1)).getArticlesByType(type);
@@ -205,8 +207,8 @@ public class ArticleApiControllerTests {
     @Test
     public void testGetAllArticleTypesWithArticles_success() {
         int days = 30;
-        Map<String, List<JsonArticleReportResponse>> mockMap =
-                Map.of("A", List.of(createMockResponse(CUSTOM_UID_1)));
+
+        Map<String, List<JsonArticleReportResponse>> mockMap = Map.of("A", List.of(createMockResponse(CUSTOM_UID_1)));
         when(dbArticlesService.getAllArticleTypesWithArticles(days)).thenReturn(mockMap);
 
         ResponseEntity<Map<String, List<JsonArticleReportResponse>>> actual =
@@ -286,8 +288,8 @@ public class ArticleApiControllerTests {
         List<JsonArticleReportResponse> articles = Arrays.asList(createMockResponse(CUSTOM_UID_1));
         when(dbArticlesService.getArticlesOfNote()).thenReturn(articles);
 
-        ResponseEntity<List<JsonArticleReportResponse>> actual =
-                articleApiController.getArticlesOfNote();
+
+        ResponseEntity<List<JsonArticleReportResponse>> actual = articleApiController.getArticlesOfNote();
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertEquals(articles.size(), actual.getBody().size());
@@ -298,8 +300,8 @@ public class ArticleApiControllerTests {
     public void testGetArticlesOfNote_noContent() {
         when(dbArticlesService.getArticlesOfNote()).thenReturn(Collections.emptyList());
 
-        ResponseEntity<List<JsonArticleReportResponse>> actual =
-                articleApiController.getArticlesOfNote();
+
+        ResponseEntity<List<JsonArticleReportResponse>> actual = articleApiController.getArticlesOfNote();
 
         assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
         verify(dbArticlesService, times(1)).getArticlesOfNote();
@@ -310,8 +312,8 @@ public class ArticleApiControllerTests {
         List<JsonArticleReportResponse> articles = Arrays.asList(createMockResponse(CUSTOM_UID_1));
         when(dbArticlesService.getManualArticles()).thenReturn(articles);
 
-        ResponseEntity<List<JsonArticleReportResponse>> actual =
-                articleApiController.getManualArticles();
+
+        ResponseEntity<List<JsonArticleReportResponse>> actual = articleApiController.getManualArticles();
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertEquals(articles.size(), actual.getBody().size());
@@ -322,8 +324,7 @@ public class ArticleApiControllerTests {
     public void testGetManualArticles_noContent() {
         when(dbArticlesService.getManualArticles()).thenReturn(Collections.emptyList());
 
-        ResponseEntity<List<JsonArticleReportResponse>> actual =
-                articleApiController.getManualArticles();
+        ResponseEntity<List<JsonArticleReportResponse>> actual = articleApiController.getManualArticles();
 
         assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
         verify(dbArticlesService, times(1)).getManualArticles();
@@ -336,14 +337,14 @@ public class ArticleApiControllerTests {
         request.setTitle("Valid Title");
         request.setDescription("Description");
 
-        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), anyString()))
-                .thenReturn(true);
+
+        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), anyString())).thenReturn(true);
 
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
-        verify(dbArticlesService, times(1))
-                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
+
+        verify(dbArticlesService, times(1)).ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
     }
 
     @Test
@@ -358,8 +359,8 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
-        verify(dbArticlesService, times(1))
-                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
+
+        verify(dbArticlesService, times(1)).ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
     }
 
     @Test
@@ -409,13 +410,13 @@ public class ArticleApiControllerTests {
         request.setLink("http://valid.com/error");
         request.setTitle("Error Title");
 
-        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), any()))
-                .thenThrow(new RuntimeException("Database error"));
+
+        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), any())).thenThrow(new RuntimeException("Database error"));
 
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.getStatusCode());
-        verify(dbArticlesService, times(1))
-                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
+
+        verify(dbArticlesService, times(1)).ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
     }
 }
