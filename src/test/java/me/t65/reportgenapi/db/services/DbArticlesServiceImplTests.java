@@ -411,7 +411,7 @@ public class DbArticlesServiceImplTests {
         ArticlesEntity expectedArticlesEntity =
                 new ArticlesEntity(
                         STAT_UID_1,
-                        1,
+                        99,
                         expectedIngestDate,
                         expectedPublishDate,
                         false,

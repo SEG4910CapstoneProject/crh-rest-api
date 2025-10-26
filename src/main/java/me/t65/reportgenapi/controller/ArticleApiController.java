@@ -381,4 +381,12 @@ public class ArticleApiController {
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(articlesOfNote);
     }
+
+    @GetMapping("/my-submissions")
+    public ResponseEntity<List<JsonArticleReportResponse>> getManualArticles() {
+        List<JsonArticleReportResponse> manualArticles = dbArticlesService.getManualArticles();
+        return manualArticles.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(manualArticles);
+    }
 }
