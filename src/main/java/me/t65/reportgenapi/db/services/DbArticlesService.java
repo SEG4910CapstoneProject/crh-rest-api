@@ -64,5 +64,4 @@ public interface DbArticlesService {
 
     /** Retrieve manually added articles by user */
     List<JsonArticleReportResponse> getManualArticles();
-
 }

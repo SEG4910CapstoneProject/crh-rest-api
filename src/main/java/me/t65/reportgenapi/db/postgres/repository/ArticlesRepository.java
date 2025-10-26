@@ -11,5 +11,6 @@ import java.util.UUID;
 @Repository
 public interface ArticlesRepository extends JpaRepository<ArticlesEntity, UUID> {
     List<ArticlesEntity> findByHashlink(long hashlink);
+
     List<ArticlesEntity> findBySourceId(Integer sourceId);
 }
