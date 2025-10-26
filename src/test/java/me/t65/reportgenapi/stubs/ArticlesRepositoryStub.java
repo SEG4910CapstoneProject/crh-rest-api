@@ -154,4 +154,10 @@ public class ArticlesRepositoryStub implements ArticlesRepository {
     public List<ArticlesEntity> findByHashlink(long hashlink) {
         return null;
     }
+
+    @Override
+    public List<ArticlesEntity> findBySourceId(Integer sourceId) {
+        return List.of();
+    }
+
 }

@@ -61,4 +61,8 @@ public interface DbArticlesService {
 
     /** Ingest a new article from URL */
     boolean ingestFromUrl(String link, String title, String description);
+
+    /** Retrieve manually added articles by user */
+    List<JsonArticleReportResponse> getManualArticles();
+
 }

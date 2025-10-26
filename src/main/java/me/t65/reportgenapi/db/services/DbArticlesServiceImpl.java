@@ -356,8 +356,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         ArticlesEntity articlesEntity =
                 new ArticlesEntity(
                         articleId,
-                        1, // We are indicating that all manually added articles are from
-                        // BleepingComputer.
+                        99, // We are indicating that all manually added articles have a
+                        // source_id: "Manually Added"
                         dateService.getCurrentInstant(),
                         publishDate,
                         false,
@@ -369,6 +369,19 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         articlesRepository.save(articlesEntity);
         articleContentRepository.save(articleContentEntity);
     }
+
+    @Override
+    public List<JsonArticleReportResponse> getManualArticles() {
+        List<ArticlesEntity> manualArticles = articlesRepository.findBySourceId(99);
+        if (manualArticles.isEmpty()) return Collections.emptyList();
+
+        List<JsonArticleReportResponse> responses = new ArrayList<>();
+        for (ArticlesEntity entity : manualArticles) {
+            getArticleById(entity.getArticleId()).ifPresent(responses::add);
+        }
+        return responses;
+    }
+
 
     public Map<UUID, CategoryEntity> getArticleToCategoryEntityMap(Collection<UUID> articleIds) {
         Map<UUID, ArticleCategoryEntity> articleIdToCategoryEntityMap =
