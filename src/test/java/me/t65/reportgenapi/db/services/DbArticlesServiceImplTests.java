@@ -638,24 +638,24 @@ public class DbArticlesServiceImplTests {
         ArticleTypeEntity atEntity2 = new ArticleTypeEntity(articleType, articleId2);
         List<ArticleTypeEntity> articleTypeEntities = List.of(atEntity1, atEntity2);
 
-        JsonArticleReportResponse response1 = new JsonArticleReportResponse(
-                articleId1.toString(),
-                "Article 1 Title",
-                "Description...",
-                "Category",
-                "Link",
-                Collections.emptyList(),
-                LocalDate.now()
-        );
-        JsonArticleReportResponse response2 = new JsonArticleReportResponse(
-                articleId2.toString(),
-                "Article 2 Title",
-                "Description...",
-                "Category",
-                "Link",
-                Collections.emptyList(),
-                LocalDate.now()
-        );
+        JsonArticleReportResponse response1 =
+                new JsonArticleReportResponse(
+                        articleId1.toString(),
+                        "Article 1 Title",
+                        "Description...",
+                        "Category",
+                        "Link",
+                        Collections.emptyList(),
+                        LocalDate.now());
+        JsonArticleReportResponse response2 =
+                new JsonArticleReportResponse(
+                        articleId2.toString(),
+                        "Article 2 Title",
+                        "Description...",
+                        "Category",
+                        "Link",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(articleTypeRepository.findByArticleType(articleType)).thenReturn(articleTypeEntities);
         when(dbArticlesService.getArticleById(articleId1)).thenReturn(Optional.of(response1));
@@ -677,7 +677,8 @@ public class DbArticlesServiceImplTests {
     void testGetArticlesByType_noEntitiesFound_returnsEmptyList() {
         String articleType = "NON_EXISTENT_TYPE";
 
-        when(articleTypeRepository.findByArticleType(articleType)).thenReturn(Collections.emptyList());
+        when(articleTypeRepository.findByArticleType(articleType))
+                .thenReturn(Collections.emptyList());
 
         List<JsonArticleReportResponse> result = dbArticlesService.getArticlesByType(articleType);
 
@@ -699,19 +700,21 @@ public class DbArticlesServiceImplTests {
         ArticleTypeEntity atEntityMiss = new ArticleTypeEntity(articleType, articleIdToMiss);
         List<ArticleTypeEntity> articleTypeEntities = List.of(atEntityFind, atEntityMiss);
 
-        JsonArticleReportResponse foundResponse = new JsonArticleReportResponse(
-                articleIdToFind.toString(),
-                "Found Title",
-                "Desc",
-                "Cat",
-                "Link",
-                Collections.emptyList(),
-                LocalDate.now()
-        );
+        JsonArticleReportResponse foundResponse =
+                new JsonArticleReportResponse(
+                        articleIdToFind.toString(),
+                        "Found Title",
+                        "Desc",
+                        "Cat",
+                        "Link",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(articleTypeRepository.findByArticleType(articleType)).thenReturn(articleTypeEntities);
 
-        doReturn(Optional.of(foundResponse)).when(dbArticlesService).getArticleById(articleIdToFind);
+        doReturn(Optional.of(foundResponse))
+                .when(dbArticlesService)
+                .getArticleById(articleIdToFind);
         doReturn(Optional.empty()).when(dbArticlesService).getArticleById(articleIdToMiss);
 
         List<JsonArticleReportResponse> result = dbArticlesService.getArticlesByType(articleType);
@@ -739,24 +742,39 @@ public class DbArticlesServiceImplTests {
         String typeA = "TYPE_A";
         String typeB = "TYPE_B";
 
-        List<ArticleTypeEntity> allTypes = List.of(
-                new ArticleTypeEntity(typeA, idA1),
-                new ArticleTypeEntity(typeA, idA2),
-                new ArticleTypeEntity(typeB, idB1),
-                new ArticleTypeEntity(typeB, idOld)
-        );
+        List<ArticleTypeEntity> allTypes =
+                List.of(
+                        new ArticleTypeEntity(typeA, idA1),
+                        new ArticleTypeEntity(typeA, idA2),
+                        new ArticleTypeEntity(typeB, idB1),
+                        new ArticleTypeEntity(typeB, idOld));
 
-        JsonArticleReportResponse respA1 = new JsonArticleReportResponse(idA1.toString(), "A1", "D", "C", "L", Collections.emptyList(), yesterday);
-        JsonArticleReportResponse respA2 = new JsonArticleReportResponse(idA2.toString(), "A2", "D", "C", "L", Collections.emptyList(), today);
-        JsonArticleReportResponse respB1 = new JsonArticleReportResponse(idB1.toString(), "B1", "D", "C", "L", Collections.emptyList(), yesterday);
-        JsonArticleReportResponse respOld = new JsonArticleReportResponse(idOld.toString(), "OLD", "D", "C", "L", Collections.emptyList(), tenDaysAgo);
+        JsonArticleReportResponse respA1 =
+                new JsonArticleReportResponse(
+                        idA1.toString(), "A1", "D", "C", "L", Collections.emptyList(), yesterday);
+        JsonArticleReportResponse respA2 =
+                new JsonArticleReportResponse(
+                        idA2.toString(), "A2", "D", "C", "L", Collections.emptyList(), today);
+        JsonArticleReportResponse respB1 =
+                new JsonArticleReportResponse(
+                        idB1.toString(), "B1", "D", "C", "L", Collections.emptyList(), yesterday);
+        JsonArticleReportResponse respOld =
+                new JsonArticleReportResponse(
+                        idOld.toString(),
+                        "OLD",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        tenDaysAgo);
 
         when(articleTypeRepository.findAll()).thenReturn(allTypes);
 
         doReturn(List.of(respA1, respA2, respOld)).when(dbArticlesService).getArticlesByType(typeA);
         doReturn(List.of(respB1, respOld)).when(dbArticlesService).getArticlesByType(typeB);
 
-        Map<String, List<JsonArticleReportResponse>> result = dbArticlesService.getAllArticleTypesWithArticles(days);
+        Map<String, List<JsonArticleReportResponse>> result =
+                dbArticlesService.getAllArticleTypesWithArticles(days);
 
         verify(articleTypeRepository, times(1)).findAll();
         verify(dbArticlesService, times(1)).getArticlesByType(typeA);
@@ -783,7 +801,8 @@ public class DbArticlesServiceImplTests {
 
         when(articleTypeRepository.findAll()).thenReturn(Collections.emptyList());
 
-        Map<String, List<JsonArticleReportResponse>> result = dbArticlesService.getAllArticleTypesWithArticles(days);
+        Map<String, List<JsonArticleReportResponse>> result =
+                dbArticlesService.getAllArticleTypesWithArticles(days);
 
         verify(articleTypeRepository, times(1)).findAll();
         verify(dbArticlesService, never()).getArticlesByType(anyString());
@@ -797,20 +816,24 @@ public class DbArticlesServiceImplTests {
         int days = 7;
         String typeC = "TYPE_C";
 
-        List<ArticleTypeEntity> allTypes = List.of(
-                new ArticleTypeEntity(typeC, UUID.randomUUID())
-        );
+        List<ArticleTypeEntity> allTypes = List.of(new ArticleTypeEntity(typeC, UUID.randomUUID()));
 
-        JsonArticleReportResponse respOld = new JsonArticleReportResponse(
-                UUID.randomUUID().toString(), "Old", "D", "C", "L",
-                Collections.emptyList(), LocalDate.now().minusDays(10)
-        );
+        JsonArticleReportResponse respOld =
+                new JsonArticleReportResponse(
+                        UUID.randomUUID().toString(),
+                        "Old",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now().minusDays(10));
 
         when(articleTypeRepository.findAll()).thenReturn(allTypes);
 
         doReturn(List.of(respOld)).when(dbArticlesService).getArticlesByType(typeC);
 
-        Map<String, List<JsonArticleReportResponse>> result = dbArticlesService.getAllArticleTypesWithArticles(days);
+        Map<String, List<JsonArticleReportResponse>> result =
+                dbArticlesService.getAllArticleTypesWithArticles(days);
 
         verify(dbArticlesService, times(1)).getArticlesByType(typeC);
 
@@ -828,9 +851,15 @@ public class DbArticlesServiceImplTests {
         UUID articleId = UUID.fromString("11111111-1111-1111-1111-111111111111");
         int initialViewCount = 5;
 
-        JsonArticleReportResponse articleResponse = new JsonArticleReportResponse(
-                articleId.toString(), "Title", "D", "C", "L", Collections.emptyList(), LocalDate.now()
-        );
+        JsonArticleReportResponse articleResponse =
+                new JsonArticleReportResponse(
+                        articleId.toString(),
+                        "Title",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
         doReturn(Optional.of(articleResponse)).when(dbArticlesService).getArticleById(articleId);
 
         MonthlyArticlesEntity existingEntity = new MonthlyArticlesEntity();
@@ -839,7 +868,8 @@ public class DbArticlesServiceImplTests {
 
         when(monthlyArticlesRepository.findByArticleId(articleId))
                 .thenReturn(Optional.of(existingEntity));
-        when(monthlyArticlesRepository.save(existingEntity)).thenAnswer(invocation -> invocation.getArgument(0));
+        when(monthlyArticlesRepository.save(existingEntity))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         Optional<MonthlyArticlesEntity> result = dbArticlesService.incrementViewCount(articleId);
 
@@ -851,7 +881,8 @@ public class DbArticlesServiceImplTests {
         verify(dbArticlesService, times(1)).getArticleById(articleId);
         verify(monthlyArticlesRepository, times(1)).findByArticleId(articleId);
         verify(monthlyArticlesRepository, times(1)).save(existingEntity);
-        verify(monthlyArticlesRepository, never()).save(argThat(entity -> entity.getViewCount() == 0));
+        verify(monthlyArticlesRepository, never())
+                .save(argThat(entity -> entity.getViewCount() == 0));
     }
 
     @Test
@@ -860,19 +891,25 @@ public class DbArticlesServiceImplTests {
         LocalDate datePublished = LocalDate.of(2025, 10, 26);
         String title = "New Article Title";
 
-        JsonArticleReportResponse articleResponse = new JsonArticleReportResponse(
-                articleId.toString(), title, "D", "C", "L", Collections.emptyList(), datePublished
-        );
+        JsonArticleReportResponse articleResponse =
+                new JsonArticleReportResponse(
+                        articleId.toString(),
+                        title,
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        datePublished);
         doReturn(Optional.of(articleResponse)).when(dbArticlesService).getArticleById(articleId);
 
-        when(monthlyArticlesRepository.findByArticleId(articleId))
-                .thenReturn(Optional.empty());
+        when(monthlyArticlesRepository.findByArticleId(articleId)).thenReturn(Optional.empty());
 
         when(monthlyArticlesRepository.save(any(MonthlyArticlesEntity.class)))
-                .thenAnswer(invocation -> {
-                    MonthlyArticlesEntity entity = invocation.getArgument(0);
-                    return entity;
-                });
+                .thenAnswer(
+                        invocation -> {
+                            MonthlyArticlesEntity entity = invocation.getArgument(0);
+                            return entity;
+                        });
 
         Optional<MonthlyArticlesEntity> result = dbArticlesService.incrementViewCount(articleId);
 
@@ -906,9 +943,15 @@ public class DbArticlesServiceImplTests {
     void testToggleArticleOfNote_articleExistsInMonthlyTable_togglesState() {
         UUID articleId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
-        JsonArticleReportResponse articleResponse = new JsonArticleReportResponse(
-                articleId.toString(), "Title", "D", "C", "L", Collections.emptyList(), LocalDate.now()
-        );
+        JsonArticleReportResponse articleResponse =
+                new JsonArticleReportResponse(
+                        articleId.toString(),
+                        "Title",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
         doReturn(Optional.of(articleResponse)).when(dbArticlesService).getArticleById(articleId);
 
         MonthlyArticlesEntity existingEntity = new MonthlyArticlesEntity();
@@ -917,7 +960,8 @@ public class DbArticlesServiceImplTests {
 
         when(monthlyArticlesRepository.findByArticleId(articleId))
                 .thenReturn(Optional.of(existingEntity));
-        when(monthlyArticlesRepository.save(existingEntity)).thenAnswer(invocation -> invocation.getArgument(0));
+        when(monthlyArticlesRepository.save(existingEntity))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         Optional<MonthlyArticlesEntity> result = dbArticlesService.toggleArticleOfNote(articleId);
 
@@ -935,13 +979,18 @@ public class DbArticlesServiceImplTests {
         LocalDate datePublished = LocalDate.of(2025, 10, 26);
         String title = "New Article Title";
 
-        JsonArticleReportResponse articleResponse = new JsonArticleReportResponse(
-                articleId.toString(), title, "D", "C", "L", Collections.emptyList(), datePublished
-        );
+        JsonArticleReportResponse articleResponse =
+                new JsonArticleReportResponse(
+                        articleId.toString(),
+                        title,
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        datePublished);
         doReturn(Optional.of(articleResponse)).when(dbArticlesService).getArticleById(articleId);
 
-        when(monthlyArticlesRepository.findByArticleId(articleId))
-                .thenReturn(Optional.empty());
+        when(monthlyArticlesRepository.findByArticleId(articleId)).thenReturn(Optional.empty());
 
         when(monthlyArticlesRepository.save(any(MonthlyArticlesEntity.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -987,8 +1036,24 @@ public class DbArticlesServiceImplTests {
 
         List<MonthlyArticlesEntity> topArticles = List.of(entity1, entity2);
 
-        JsonArticleReportResponse resp1 = new JsonArticleReportResponse(id1.toString(), "Title 1", "D", "C", "link1", Collections.emptyList(), LocalDate.now());
-        JsonArticleReportResponse resp2 = new JsonArticleReportResponse(id2.toString(), "Title 2", "D", "C", "link2", Collections.emptyList(), LocalDate.now());
+        JsonArticleReportResponse resp1 =
+                new JsonArticleReportResponse(
+                        id1.toString(),
+                        "Title 1",
+                        "D",
+                        "C",
+                        "link1",
+                        Collections.emptyList(),
+                        LocalDate.now());
+        JsonArticleReportResponse resp2 =
+                new JsonArticleReportResponse(
+                        id2.toString(),
+                        "Title 2",
+                        "D",
+                        "C",
+                        "link2",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(monthlyArticlesRepository.findTop10ByOrderByViewCountDesc()).thenReturn(topArticles);
         doReturn(Optional.of(resp1)).when(dbArticlesService).getArticleById(id1);
@@ -1023,7 +1088,15 @@ public class DbArticlesServiceImplTests {
 
         List<MonthlyArticlesEntity> topArticles = List.of(entity1, entity2);
 
-        JsonArticleReportResponse resp1 = new JsonArticleReportResponse(id1.toString(), "Title 1", "D", "C", "link1", Collections.emptyList(), LocalDate.now());
+        JsonArticleReportResponse resp1 =
+                new JsonArticleReportResponse(
+                        id1.toString(),
+                        "Title 1",
+                        "D",
+                        "C",
+                        "link1",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(monthlyArticlesRepository.findTop10ByOrderByViewCountDesc()).thenReturn(topArticles);
         doReturn(Optional.of(resp1)).when(dbArticlesService).getArticleById(id1);
@@ -1051,8 +1124,24 @@ public class DbArticlesServiceImplTests {
 
         List<MonthlyArticlesEntity> articlesOfNote = List.of(entity1, entity2);
 
-        JsonArticleReportResponse resp1 = new JsonArticleReportResponse(id1.toString(), "Title 1", "D", "C", "L", Collections.emptyList(), LocalDate.now());
-        JsonArticleReportResponse resp2 = new JsonArticleReportResponse(id2.toString(), "Title 2", "D", "C", "L", Collections.emptyList(), LocalDate.now());
+        JsonArticleReportResponse resp1 =
+                new JsonArticleReportResponse(
+                        id1.toString(),
+                        "Title 1",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
+        JsonArticleReportResponse resp2 =
+                new JsonArticleReportResponse(
+                        id2.toString(),
+                        "Title 2",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(monthlyArticlesRepository.findByIsArticleOfNoteTrue()).thenReturn(articlesOfNote);
         doReturn(Optional.of(resp1)).when(dbArticlesService).getArticleById(id1);
@@ -1070,7 +1159,8 @@ public class DbArticlesServiceImplTests {
 
     @Test
     void testGetArticlesOfNote_noArticles_returnsEmptyList() {
-        when(monthlyArticlesRepository.findByIsArticleOfNoteTrue()).thenReturn(Collections.emptyList());
+        when(monthlyArticlesRepository.findByIsArticleOfNoteTrue())
+                .thenReturn(Collections.emptyList());
 
         List<JsonArticleReportResponse> result = dbArticlesService.getArticlesOfNote();
 
@@ -1087,16 +1177,21 @@ public class DbArticlesServiceImplTests {
         UUID articleId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         when(articlesRepository.existsById(articleId)).thenReturn(true);
-        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(false);
-        when(userFavouriteRepository.save(any(UserFavouriteEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId))
+                .thenReturn(false);
+        when(userFavouriteRepository.save(any(UserFavouriteEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         boolean result = dbArticlesService.addFavourite(userId, articleId);
 
         assertTrue(result);
 
-        verify(userFavouriteRepository, times(1)).save(argThat(fav ->
-                fav.getUserId().equals(userId) && fav.getArticleId().equals(articleId)
-        ));
+        verify(userFavouriteRepository, times(1))
+                .save(
+                        argThat(
+                                fav ->
+                                        fav.getUserId().equals(userId)
+                                                && fav.getArticleId().equals(articleId)));
         verify(articlesRepository, times(1)).existsById(articleId);
     }
 
@@ -1112,7 +1207,8 @@ public class DbArticlesServiceImplTests {
         assertFalse(result);
 
         verify(articlesRepository, times(1)).existsById(articleId);
-        verify(userFavouriteRepository, never()).existsByUserIdAndArticleId(anyLong(), any(UUID.class));
+        verify(userFavouriteRepository, never())
+                .existsByUserIdAndArticleId(anyLong(), any(UUID.class));
         verify(userFavouriteRepository, never()).save(any(UserFavouriteEntity.class));
     }
 
@@ -1122,7 +1218,8 @@ public class DbArticlesServiceImplTests {
         UUID articleId = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
         when(articlesRepository.existsById(articleId)).thenReturn(true);
-        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(true);
+        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId))
+                .thenReturn(true);
 
         boolean result = dbArticlesService.addFavourite(userId, articleId);
 
@@ -1137,7 +1234,8 @@ public class DbArticlesServiceImplTests {
         Long userId = 1L;
         UUID articleId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
-        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(true);
+        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId))
+                .thenReturn(true);
 
         dbArticlesService.removeFavourite(userId, articleId);
 
@@ -1150,12 +1248,14 @@ public class DbArticlesServiceImplTests {
         Long userId = 1L;
         UUID articleId = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
-        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(false);
+        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId))
+                .thenReturn(false);
 
         dbArticlesService.removeFavourite(userId, articleId);
 
         verify(userFavouriteRepository, times(1)).existsByUserIdAndArticleId(userId, articleId);
-        verify(userFavouriteRepository, never()).deleteByUserIdAndArticleId(anyLong(), any(UUID.class));
+        verify(userFavouriteRepository, never())
+                .deleteByUserIdAndArticleId(anyLong(), any(UUID.class));
     }
 
     @Test
@@ -1182,8 +1282,24 @@ public class DbArticlesServiceImplTests {
         fav2.setArticleId(id2);
         List<UserFavouriteEntity> favourites = Arrays.asList(fav1, fav2);
 
-        JsonArticleReportResponse resp1 = new JsonArticleReportResponse(id1.toString(), "Title 1", "D", "C", "L", Collections.emptyList(), LocalDate.now());
-        JsonArticleReportResponse resp2 = new JsonArticleReportResponse(id2.toString(), "Title 2", "D", "C", "L", Collections.emptyList(), LocalDate.now());
+        JsonArticleReportResponse resp1 =
+                new JsonArticleReportResponse(
+                        id1.toString(),
+                        "Title 1",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
+        JsonArticleReportResponse resp2 =
+                new JsonArticleReportResponse(
+                        id2.toString(),
+                        "Title 2",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(userFavouriteRepository.findByUserId(userId)).thenReturn(favourites);
         doReturn(Optional.of(resp1)).when(dbArticlesService).getArticleById(id1);
@@ -1211,7 +1327,15 @@ public class DbArticlesServiceImplTests {
         fav2.setArticleId(id2);
         List<UserFavouriteEntity> favourites = Arrays.asList(fav1, fav2);
 
-        JsonArticleReportResponse resp1 = new JsonArticleReportResponse(id1.toString(), "Title 1", "D", "C", "L", Collections.emptyList(), LocalDate.now());
+        JsonArticleReportResponse resp1 =
+                new JsonArticleReportResponse(
+                        id1.toString(),
+                        "Title 1",
+                        "D",
+                        "C",
+                        "L",
+                        Collections.emptyList(),
+                        LocalDate.now());
 
         when(userFavouriteRepository.findByUserId(userId)).thenReturn(favourites);
         doReturn(Optional.of(resp1)).when(dbArticlesService).getArticleById(id1);
@@ -1239,13 +1363,9 @@ public class DbArticlesServiceImplTests {
         assertTrue(result);
 
         verify(dbArticlesService, times(1)).getArticleByLink(link);
-        verify(dbArticlesService, times(1)).addNewArticle(
-                any(UUID.class),
-                eq(title),
-                eq(link),
-                eq(description),
-                any(Instant.class)
-        );
+        verify(dbArticlesService, times(1))
+                .addNewArticle(
+                        any(UUID.class), eq(title), eq(link), eq(description), any(Instant.class));
     }
 
     @Test
@@ -1296,13 +1416,13 @@ public class DbArticlesServiceImplTests {
 
         dbArticlesService.ingestFromUrl(link, title, "Desc");
 
-        verify(dbArticlesService, times(1)).addNewArticle(
-                any(UUID.class),
-                eq("Untitled Article"),
-                eq(link),
-                eq("Desc"),
-                any(Instant.class)
-        );
+        verify(dbArticlesService, times(1))
+                .addNewArticle(
+                        any(UUID.class),
+                        eq("Untitled Article"),
+                        eq(link),
+                        eq("Desc"),
+                        any(Instant.class));
     }
 
     @Test
@@ -1314,13 +1434,13 @@ public class DbArticlesServiceImplTests {
 
         dbArticlesService.ingestFromUrl(link, "Title", description);
 
-        verify(dbArticlesService, times(1)).addNewArticle(
-                any(UUID.class),
-                eq("Title"),
-                eq(link),
-                eq("No description provided."),
-                any(Instant.class)
-        );
+        verify(dbArticlesService, times(1))
+                .addNewArticle(
+                        any(UUID.class),
+                        eq("Title"),
+                        eq(link),
+                        eq("No description provided."),
+                        any(Instant.class));
     }
 
     @Test
@@ -1329,11 +1449,16 @@ public class DbArticlesServiceImplTests {
         String title = "Title";
 
         when(dbArticlesService.getArticleByLink(link)).thenReturn(Optional.empty());
-        doThrow(new RuntimeException("DB Save Error")).when(dbArticlesService).addNewArticle(any(), any(), any(), any(), any());
+        doThrow(new RuntimeException("DB Save Error"))
+                .when(dbArticlesService)
+                .addNewArticle(any(), any(), any(), any(), any());
 
-        RuntimeException thrown = assertThrows(RuntimeException.class, () -> {
-            dbArticlesService.ingestFromUrl(link, title, "Desc");
-        });
+        RuntimeException thrown =
+                assertThrows(
+                        RuntimeException.class,
+                        () -> {
+                            dbArticlesService.ingestFromUrl(link, title, "Desc");
+                        });
 
         assertTrue(thrown.getMessage().contains("Error ingesting article"));
         verify(dbArticlesService, times(1)).addNewArticle(any(), any(), any(), any(), any());

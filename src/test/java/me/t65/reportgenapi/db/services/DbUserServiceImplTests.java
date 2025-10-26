@@ -1,7 +1,11 @@
 package me.t65.reportgenapi.db.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import me.t65.reportgenapi.db.postgres.entities.UserEntity;
 import me.t65.reportgenapi.db.postgres.repository.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,20 +15,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class DbUserServiceImplTests {
 
-    @Mock
-    private UserRepository userRepository;
+    @Mock private UserRepository userRepository;
 
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    @Mock private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
-    private DbUserServiceImpl dbUserServiceImpl;
+    @InjectMocks private DbUserServiceImpl dbUserServiceImpl;
 
     @Test
     void testRegister_success_encodesAndSavesUser() {
@@ -49,9 +47,12 @@ class DbUserServiceImplTests {
         assertEquals(role, result.getRole());
 
         verify(passwordEncoder, times(1)).encode(rawPassword);
-        verify(userRepository, times(1)).save(argThat(user ->
-                user.getEmail().equals(email) && user.getPasswordHash().equals(hashedPassword)
-        ));
+        verify(userRepository, times(1))
+                .save(
+                        argThat(
+                                user ->
+                                        user.getEmail().equals(email)
+                                                && user.getPasswordHash().equals(hashedPassword)));
     }
 
     @Test
