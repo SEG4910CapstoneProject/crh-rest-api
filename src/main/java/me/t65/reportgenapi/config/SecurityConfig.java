@@ -63,8 +63,6 @@ public class SecurityConfig {
                                         .anyRequest()
                                         .permitAll());
 
-
-
         http.addFilterBefore(
                 authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
