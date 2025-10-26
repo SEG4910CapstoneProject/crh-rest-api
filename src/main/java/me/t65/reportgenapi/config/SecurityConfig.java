@@ -55,13 +55,13 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers("/api/auth/**", "/login")
-                                        .permitAll()
+                                auth
+                                        // Everything is open (but token will still be parsed if
+                                        // provided)
                                         .anyRequest()
-                                        .authenticated());
+                                        .permitAll());
 
         http.addFilterBefore(
                 authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
