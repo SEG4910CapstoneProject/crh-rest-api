@@ -330,16 +330,18 @@ public class DbReportServiceImpl implements DbReportService {
      * Creates a new report entry in the database.
      *
      * @param generateDate The timestamp when the report is created.
-     * @param reportType The type of report (e.g., DAILY, WEEKLY).
+     * @param reportType The type of report (e.g., DAILY, WEEKLY, MONTHLY).
+     * @param template_type The template email type of the report (ai_generated template type -non-restricted- or detailed template type -restricted-)
      * @return The generated report ID.
      */
-    public int createBasicReport(Instant generateDate, ReportType reportType) {
+    public int createBasicReport(Instant generateDate, ReportType reportType, EmailTemplateType template_type) {
         ReportEntity report = new ReportEntity();
         report.setGenerateDate(generateDate);
         report.setLastModified(generateDate);
         report.setReportType(reportType);
         report.setEmailStatus(false); // Default status
         report.setPdfData(null); // Empty array instead of null
+        report.setEmailType(template_type);
 
         ReportEntity savedReport = reportRepository.save(report);
         return savedReport.getReportId();

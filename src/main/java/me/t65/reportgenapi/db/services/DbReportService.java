@@ -2,6 +2,7 @@ package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.controller.payload.SearchReportResponse;
 import me.t65.reportgenapi.db.postgres.dto.ReportRequest;
+import me.t65.reportgenapi.db.postgres.entities.EmailTemplateType;
 import me.t65.reportgenapi.db.postgres.entities.ReportEntity;
 import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.reportformatter.RawReport;
@@ -24,7 +25,7 @@ public interface DbReportService {
 
     Optional<RawReport> getRawReport(int reportId);
 
-    public int createBasicReport(Instant generateDate, ReportType reportType);
+    public int createBasicReport(Instant generateDate, ReportType reportType, EmailTemplateType template_type);
 
     boolean deleteReport(int reportId);
 
