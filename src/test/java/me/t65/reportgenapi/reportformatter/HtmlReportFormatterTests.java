@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import me.t65.reportgenapi.config.RestApiConfig;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.postgres.entities.ArticlesEntity;
+import me.t65.reportgenapi.db.postgres.entities.EmailTemplateType;
 import me.t65.reportgenapi.db.postgres.entities.ReportArticlesEntity;
 import me.t65.reportgenapi.db.postgres.entities.ReportEntity;
 import me.t65.reportgenapi.db.postgres.entities.ReportType;
@@ -71,7 +72,8 @@ public class HtmlReportFormatterTests {
                         ReportType.daily,
                         Instant.ofEpochMilli(1000),
                         true,
-                        new byte[] {});
+                        new byte[] {},
+                        EmailTemplateType.nonRestricted);
 
         ReportArticlesEntity reportArticlesEntity1 =
                 new ReportArticlesEntity(
