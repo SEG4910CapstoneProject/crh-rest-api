@@ -331,10 +331,12 @@ public class DbReportServiceImpl implements DbReportService {
      *
      * @param generateDate The timestamp when the report is created.
      * @param reportType The type of report (e.g., DAILY, WEEKLY, MONTHLY).
-     * @param template_type The template email type of the report (ai_generated template type -non-restricted- or detailed template type -restricted-)
+     * @param template_type The template email type of the report (ai_generated template type
+     *     -non-restricted- or detailed template type -restricted-)
      * @return The generated report ID.
      */
-    public int createBasicReport(Instant generateDate, ReportType reportType, EmailTemplateType template_type) {
+    public int createBasicReport(
+            Instant generateDate, ReportType reportType, EmailTemplateType template_type) {
         ReportEntity report = new ReportEntity();
         report.setGenerateDate(generateDate);
         report.setLastModified(generateDate);

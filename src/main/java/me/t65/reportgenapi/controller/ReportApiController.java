@@ -153,7 +153,8 @@ public class ReportApiController {
 
         if (type != ReportType.notSpecified
                 && type != ReportType.daily
-                && type != ReportType.weekly && type != ReportType.monthly) {
+                && type != ReportType.weekly
+                && type != ReportType.monthly) {
             return ResponseEntity.badRequest().body("Unsupported report type");
         }
 
@@ -566,17 +567,19 @@ public class ReportApiController {
     public ResponseEntity<?> createBasicReport(
             @RequestParam ReportType reportType,
             @RequestParam EmailTemplateType emailTemplateType) {
-        
-        if ((reportType != ReportType.daily) && (reportType != ReportType.monthly) && (reportType != ReportType.weekly))
-        {
-                return ResponseEntity.badRequest().body("Unsupported report type"); 
+
+        if ((reportType != ReportType.daily)
+                && (reportType != ReportType.monthly)
+                && (reportType != ReportType.weekly)) {
+            return ResponseEntity.badRequest().body("Unsupported report type");
         }
 
-        if ((emailTemplateType != EmailTemplateType.nonRestricted && emailTemplateType != EmailTemplateType.restricted))
-        {
-                return ResponseEntity.badRequest().body("Unsupported email template type");
+        if ((emailTemplateType != EmailTemplateType.nonRestricted
+                && emailTemplateType != EmailTemplateType.restricted)) {
+            return ResponseEntity.badRequest().body("Unsupported email template type");
         }
-        int reportId = dbReportService.createBasicReport(Instant.now(), reportType, emailTemplateType);
+        int reportId =
+                dbReportService.createBasicReport(Instant.now(), reportType, emailTemplateType);
         return ResponseEntity.status(201).body(Map.of("reportId", reportId));
     }
 
