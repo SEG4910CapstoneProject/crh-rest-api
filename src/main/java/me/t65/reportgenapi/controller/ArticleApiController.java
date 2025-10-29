@@ -128,8 +128,9 @@ public class ArticleApiController {
                 @ApiResponse(responseCode = "500", description = "Error during ingestion")
             })
     @PostMapping("/ingest")
-    public ResponseEntity<?> ingestArticle(@RequestBody ArticleIngestRequest request,
-                                           @RequestHeader(value = "Authorization", required = false) String authHeader) {
+    public ResponseEntity<?> ingestArticle(
+            @RequestBody ArticleIngestRequest request,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("message", "You must be logged in to submit an article."));
@@ -413,5 +414,4 @@ public class ArticleApiController {
 
         return ResponseEntity.ok(Map.of("message", "Article deleted successfully."));
     }
-
 }

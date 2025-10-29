@@ -681,5 +681,4 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         articleContentRepository.deleteById(articleId);
         return true;
     }
-
 }
