@@ -64,4 +64,7 @@ public interface DbArticlesService {
 
     /** Retrieve manually added articles by user */
     List<JsonArticleReportResponse> getManualArticles();
+
+    /** Delete articles manually added by users */
+    boolean deleteManualArticle(UUID articleId);
 }
