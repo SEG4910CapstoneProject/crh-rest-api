@@ -33,7 +33,7 @@ public class DateUtilsTests {
 
     @Test
     public void testIsValidType_invalidType() {
-        assertFalse(DateUtils.isValidType("monthly"));
+        assertFalse(DateUtils.isValidType("biweekly"));
     }
 
     @Test

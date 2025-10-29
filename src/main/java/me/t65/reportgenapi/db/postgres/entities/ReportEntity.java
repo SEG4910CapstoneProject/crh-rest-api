@@ -44,4 +44,9 @@ public class ReportEntity {
     @Basic(fetch = FetchType.LAZY)
     @Column(name = "report_pdf", columnDefinition = "BYTEA")
     private byte[] pdfData;
+
+    @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
+    @Column(name = "email_type", nullable = false)
+    private EmailTemplateType emailType;
 }
