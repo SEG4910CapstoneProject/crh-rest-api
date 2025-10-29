@@ -337,12 +337,15 @@ public class ArticleApiControllerTests {
         request.setDescription("Description");
 
         when(dbArticlesService.getArticleByLink(request.getLink())).thenReturn(Optional.empty());
-        doNothing().when(dbArticlesService).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        doNothing()
+                .when(dbArticlesService)
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
 
         ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer validtoken");
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
-        verify(dbArticlesService, times(1)).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, times(1))
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -357,7 +360,8 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -369,7 +373,8 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -381,7 +386,8 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -398,7 +404,8 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
