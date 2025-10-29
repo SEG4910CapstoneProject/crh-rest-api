@@ -25,7 +25,8 @@ public interface DbReportService {
 
     Optional<RawReport> getRawReport(int reportId);
 
-    public int createBasicReport(Instant generateDate, ReportType reportType, EmailTemplateType template_type);
+    public int createBasicReport(
+            Instant generateDate, ReportType reportType, EmailTemplateType template_type);
 
     boolean deleteReport(int reportId);
 
