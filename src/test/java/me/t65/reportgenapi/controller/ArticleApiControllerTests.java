@@ -330,36 +330,38 @@ public class ArticleApiControllerTests {
     }
 
     @Test
-    public void testIngestArticle_success() throws Exception {
+    public void testIngestArticle_success() {
         ArticleIngestRequest request = new ArticleIngestRequest();
         request.setLink("http://valid.com/article");
         request.setTitle("Valid Title");
         request.setDescription("Description");
 
-        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), anyString()))
-                .thenReturn(true);
+        when(dbArticlesService.getArticleByLink(request.getLink())).thenReturn(Optional.empty());
+        doNothing()
+                .when(dbArticlesService)
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
 
-        ResponseEntity<?> actual = articleApiController.ingestArticle(request);
+        ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer validtoken");
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         verify(dbArticlesService, times(1))
-                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
-    public void testIngestArticle_conflict_alreadyExists() throws Exception {
+    public void testIngestArticle_conflict_alreadyExists() {
         ArticleIngestRequest request = new ArticleIngestRequest();
         request.setLink("http://existing.com/article");
         request.setTitle("Existing Title");
-        request.setDescription(null);
 
-        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), any())).thenReturn(false);
+        when(dbArticlesService.getArticleByLink(request.getLink()))
+                .thenReturn(Optional.of(mock(JsonArticleReportResponse.class)));
 
-        ResponseEntity<?> actual = articleApiController.ingestArticle(request);
+        ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
-        verify(dbArticlesService, times(1))
-                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -368,10 +370,11 @@ public class ArticleApiControllerTests {
         request.setLink("");
         request.setTitle("Valid Title");
 
-        ResponseEntity<?> actual = articleApiController.ingestArticle(request);
+        ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).ingestFromUrl(anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -380,10 +383,11 @@ public class ArticleApiControllerTests {
         request.setLink("http://link.com");
         request.setTitle("");
 
-        ResponseEntity<?> actual = articleApiController.ingestArticle(request);
+        ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).ingestFromUrl(anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
@@ -397,25 +401,29 @@ public class ArticleApiControllerTests {
 
         // Since the controller catches the MalformedURLException internally,
         // we only assert the HTTP response.
-        ResponseEntity<?> actual = articleApiController.ingestArticle(request);
+        ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).ingestFromUrl(anyString(), anyString(), any());
+        verify(dbArticlesService, never())
+                .addNewArticle(any(), anyString(), anyString(), anyString(), any());
     }
 
     @Test
-    public void testIngestArticle_internalServerError() throws Exception {
+    public void testIngestArticle_internalServerError() {
         ArticleIngestRequest request = new ArticleIngestRequest();
         request.setLink("http://valid.com/error");
         request.setTitle("Error Title");
+        request.setDescription(null); // can be null
 
-        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), any()))
-                .thenThrow(new RuntimeException("Database error"));
+        when(dbArticlesService.getArticleByLink(request.getLink())).thenReturn(Optional.empty());
+        doThrow(new RuntimeException("Database error"))
+                .when(dbArticlesService)
+                .addNewArticle(any(), anyString(), anyString(), nullable(String.class), any());
 
-        ResponseEntity<?> actual = articleApiController.ingestArticle(request);
+        ResponseEntity<?> actual = articleApiController.ingestArticle(request, "Bearer token");
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.getStatusCode());
         verify(dbArticlesService, times(1))
-                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
+                .addNewArticle(any(), anyString(), anyString(), nullable(String.class), any());
     }
 }
