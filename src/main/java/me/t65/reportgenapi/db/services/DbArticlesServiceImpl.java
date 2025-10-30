@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -352,11 +353,11 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     @Override
     public void addNewArticle(
             UUID articleId, String title, String link, String description, Instant publishDate) {
-        // Source 0 is manual entry
         ArticlesEntity articlesEntity =
                 new ArticlesEntity(
                         articleId,
-                        0,
+                        99, // We are indicating that all manually added articles have a
+                        // source_id: "Manually Added"
                         dateService.getCurrentInstant(),
                         publishDate,
                         false,
@@ -367,6 +368,18 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         articlesRepository.save(articlesEntity);
         articleContentRepository.save(articleContentEntity);
+    }
+
+    @Override
+    public List<JsonArticleReportResponse> getManualArticles() {
+        List<ArticlesEntity> manualArticles = articlesRepository.findBySourceId(99);
+        if (manualArticles.isEmpty()) return Collections.emptyList();
+
+        List<JsonArticleReportResponse> responses = new ArrayList<>();
+        for (ArticlesEntity entity : manualArticles) {
+            getArticleById(entity.getArticleId()).ifPresent(responses::add);
+        }
+        return responses;
     }
 
     public Map<UUID, CategoryEntity> getArticleToCategoryEntityMap(Collection<UUID> articleIds) {
@@ -550,38 +563,24 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         return articleResponses;
     }
 
-    public List<MonthlyArticleDTO> getArticlesOfNote() {
-        // Get the articles of note from the monthly articles table
+    @Override
+    public List<JsonArticleReportResponse> getArticlesOfNote() {
+        // Get the "articles of note" from the monthly table
         List<MonthlyArticlesEntity> articlesOfNote =
                 monthlyArticlesRepository.findByIsArticleOfNoteTrue();
 
-        // List to store the final responses
-        List<MonthlyArticleDTO> articleResponses = new ArrayList<>();
-
-        for (MonthlyArticlesEntity monthlyArticle : articlesOfNote) {
-            // Fetch the article details by articleId
-            Optional<JsonArticleReportResponse> articleResponse =
-                    getArticleById(monthlyArticle.getArticleId());
-
-            // If the article is found, add it to the list
-            articleResponse.ifPresent(
-                    response -> {
-                        // Create a new MonthlyArticleDTO that includes the URL and view count
-                        // (optional)
-                        MonthlyArticleDTO finalResponse =
-                                new MonthlyArticleDTO(
-                                        response.getLink(), // URL
-                                        Optional.of(
-                                                monthlyArticle
-                                                        .getViewCount()), // View count wrapped in
-                                        response.getTitle(),
-                                        UUID.fromString(response.getArticleId()));
-
-                        articleResponses.add(finalResponse);
-                    });
+        if (articlesOfNote.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        return articleResponses;
+        List<JsonArticleReportResponse> responses = new ArrayList<>();
+
+        for (MonthlyArticlesEntity monthlyArticle : articlesOfNote) {
+            // Fetch full article details
+            getArticleById(monthlyArticle.getArticleId()).ifPresent(responses::add);
+        }
+
+        return responses;
     }
 
     @Autowired private UserFavouriteRepository userFavouriteRepository;
@@ -627,5 +626,48 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         }
 
         return result;
+    }
+
+    @Override
+    public boolean ingestFromUrl(String link, String title, String description) {
+        LOGGER.info("Starting ingestion: link='{}'", link);
+        try {
+            if (link == null || link.isBlank()) {
+                LOGGER.warn("Link is null or blank, aborting ingestion.");
+                return false;
+            }
+
+            Optional<JsonArticleReportResponse> existing = getArticleByLink(link);
+            if (existing.isPresent()) {
+                LOGGER.info("Article already exists: {}", link);
+                return false;
+            }
+
+            String safeTitle = (title == null || title.isBlank()) ? "Untitled Article" : title;
+            String safeDescription =
+                    (description == null || description.isBlank())
+                            ? "No description provided."
+                            : description;
+            LocalDate publishDate = LocalDate.now();
+
+            LOGGER.debug("Cleaned title='{}', desc length={}", safeTitle, safeDescription.length());
+
+            UUID uuid = UUID.randomUUID();
+            LOGGER.debug("Generated UUID {}", uuid);
+
+            addNewArticle(
+                    uuid,
+                    safeTitle,
+                    link,
+                    safeDescription,
+                    publishDate.atStartOfDay().toInstant(ZoneOffset.UTC));
+
+            LOGGER.info("Successfully ingested and saved article: {}", link);
+            return true;
+
+        } catch (Exception e) {
+            LOGGER.error("Ingestion failed for link '{}': {}", link, e.getMessage(), e);
+            throw new RuntimeException("Error ingesting article: " + e.getMessage(), e);
+        }
     }
 }

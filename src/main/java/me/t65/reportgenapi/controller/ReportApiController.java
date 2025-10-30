@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import me.t65.reportgenapi.controller.payload.*;
 import me.t65.reportgenapi.db.postgres.dto.ReportRequest;
+import me.t65.reportgenapi.db.postgres.entities.EmailTemplateType;
 import me.t65.reportgenapi.db.postgres.entities.ReportEntity;
 import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.db.services.DbArticlesService;
@@ -152,7 +153,8 @@ public class ReportApiController {
 
         if (type != ReportType.notSpecified
                 && type != ReportType.daily
-                && type != ReportType.weekly) {
+                && type != ReportType.weekly
+                && type != ReportType.monthly) {
             return ResponseEntity.badRequest().body("Unsupported report type");
         }
 
@@ -562,9 +564,22 @@ public class ReportApiController {
                 @ApiResponse(responseCode = "400", description = "Invalid request")
             })
     @PostMapping("/create-basic-report")
-    public ResponseEntity<Map<String, Integer>> createBasicReport(
-            @RequestParam ReportType reportType) {
-        int reportId = dbReportService.createBasicReport(Instant.now(), reportType);
+    public ResponseEntity<?> createBasicReport(
+            @RequestParam ReportType reportType,
+            @RequestParam EmailTemplateType emailTemplateType) {
+
+        if ((reportType != ReportType.daily)
+                && (reportType != ReportType.monthly)
+                && (reportType != ReportType.weekly)) {
+            return ResponseEntity.badRequest().body("Unsupported report type");
+        }
+
+        if ((emailTemplateType != EmailTemplateType.nonRestricted
+                && emailTemplateType != EmailTemplateType.restricted)) {
+            return ResponseEntity.badRequest().body("Unsupported email template type");
+        }
+        int reportId =
+                dbReportService.createBasicReport(Instant.now(), reportType, emailTemplateType);
         return ResponseEntity.status(201).body(Map.of("reportId", reportId));
     }
 
