@@ -670,15 +670,4 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             throw new RuntimeException("Error ingesting article: " + e.getMessage(), e);
         }
     }
-
-    @Override
-    public boolean deleteManualArticle(UUID articleId) {
-        Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
-        if (articleOpt.isEmpty() || articleOpt.get().getSourceId() != 99) {
-            return false; // not a manual article
-        }
-        articlesRepository.deleteById(articleId);
-        articleContentRepository.deleteById(articleId);
-        return true;
-    }
 }

@@ -128,13 +128,7 @@ public class ArticleApiController {
                 @ApiResponse(responseCode = "500", description = "Error during ingestion")
             })
     @PostMapping("/ingest")
-    public ResponseEntity<?> ingestArticle(
-            @RequestBody ArticleIngestRequest request,
-            @RequestHeader(value = "Authorization", required = false) String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "You must be logged in to submit an article."));
-        }
+    public ResponseEntity<?> ingestArticle(@RequestBody ArticleIngestRequest request) {
         LOGGER.info(
                 "Ingest request received: link='{}', title='{}'",
                 request.getLink(),
@@ -394,24 +388,5 @@ public class ArticleApiController {
         return manualArticles.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(manualArticles);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteManualArticle(
-            @PathVariable UUID id,
-            @RequestHeader(value = "Authorization", required = false) String authHeader) {
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "You must be logged in to delete an article."));
-        }
-
-        boolean deleted = dbArticlesService.deleteManualArticle(id);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Article not found or not manually added."));
-        }
-
-        return ResponseEntity.ok(Map.of("message", "Article deleted successfully."));
     }
 }
