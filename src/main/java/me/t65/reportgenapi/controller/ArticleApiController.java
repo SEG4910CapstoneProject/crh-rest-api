@@ -55,22 +55,22 @@ public class ArticleApiController {
     @Operation(summary = "Get article", description = "This endpoint gets the specified article")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successfully retrieved the article",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    JsonArticleReportResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Unable to get article"),
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Successfully retrieved the article",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                JsonArticleReportResponse.class))),
+                @ApiResponse(responseCode = "404", description = "Unable to get article"),
             })
     @GetMapping("/{id}")
     public ResponseEntity<?> getArticle(
             @Parameter(description = "The article id", required = true) @PathVariable("id")
-            String id) {
+                    String id) {
 
         UUID articleUid = UUID.fromString(id);
         Optional<JsonArticleReportResponse> response = dbArticlesService.getArticleById(articleUid);
@@ -87,22 +87,22 @@ public class ArticleApiController {
             description = "This endpoint gets the specified article by its link if exists")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Successfully retrieved the article",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    JsonArticleReportResponse.class))),
-                    @ApiResponse(responseCode = "404", description = "Unable to get article"),
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Successfully retrieved the article",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                JsonArticleReportResponse.class))),
+                @ApiResponse(responseCode = "404", description = "Unable to get article"),
             })
     @PostMapping("/link")
     public ResponseEntity<?> getArticleByLink(
             @Parameter(description = "The article id", required = true) @RequestBody
-            ArticleByLinkRequest articleByLinkRequest) {
+                    ArticleByLinkRequest articleByLinkRequest) {
 
         Optional<JsonArticleReportResponse> response =
                 dbArticlesService.getArticleByLink(articleByLinkRequest.getLink());
@@ -121,11 +121,11 @@ public class ArticleApiController {
                             + " pipeline.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Article ingestion started successfully"),
-                    @ApiResponse(responseCode = "400", description = "Missing required link"),
-                    @ApiResponse(responseCode = "500", description = "Error during ingestion")
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Article ingestion started successfully"),
+                @ApiResponse(responseCode = "400", description = "Missing required link"),
+                @ApiResponse(responseCode = "500", description = "Error during ingestion")
             })
     @PostMapping("/ingest")
     public ResponseEntity<?> ingestArticle(
@@ -198,12 +198,12 @@ public class ArticleApiController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> editArticle(
             @Parameter(description = "The article id", required = true) @PathVariable("id")
-            String id,
+                    String id,
             @RequestParam(name = "title") String title,
             @RequestParam(name = "link") String link,
             @RequestParam(name = "description") String description,
             @Parameter(description = "Start date (YYYY-MM-DD)") @RequestParam(name = "publish-date")
-            LocalDate publishDate) {
+                    LocalDate publishDate) {
 
         Instant publishDateInstant = publishDate.atStartOfDay(ZoneId.systemDefault()).toInstant();
 
@@ -222,13 +222,13 @@ public class ArticleApiController {
             description = "This endpoint updates the specified article")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Add article successful",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = UidResponse.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Add article successful",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema = @Schema(implementation = UidResponse.class)))
             })
     @PostMapping("/add")
     public ResponseEntity<?> addArticle(
@@ -236,7 +236,7 @@ public class ArticleApiController {
             @RequestParam(name = "link") String link,
             @RequestParam(name = "description") String description,
             @Parameter(description = "Start date (YYYY-MM-DD)") @RequestParam(name = "publish-date")
-            LocalDate publishDate) {
+                    LocalDate publishDate) {
         UUID uuid = idGenerator.generateId();
         dbArticlesService.addNewArticle(
                 uuid,
@@ -253,20 +253,20 @@ public class ArticleApiController {
             description = "This endpoint fetches articles based on their type.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Articles retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    JsonArticleReportResponse.class))),
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "No articles found for the given type",
-                            content = @Content(mediaType = "application/json"))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Articles retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                JsonArticleReportResponse.class))),
+                @ApiResponse(
+                        responseCode = "204",
+                        description = "No articles found for the given type",
+                        content = @Content(mediaType = "application/json"))
             })
     @GetMapping("/type/{type}")
     public ResponseEntity<List<JsonArticleReportResponse>> getArticlesByType(
@@ -285,20 +285,20 @@ public class ArticleApiController {
                             + " articles from the past specified number of days.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Article types and articles retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(
-                                            implementation =
-                                                    JsonArticleReportResponse.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Article types and articles retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                JsonArticleReportResponse.class)))
             })
     @GetMapping("/article-types-with-articles")
     public ResponseEntity<Map<String, List<JsonArticleReportResponse>>>
-    getAllArticleTypesWithArticles(@RequestParam int days) {
+            getAllArticleTypesWithArticles(@RequestParam int days) {
         Map<String, List<JsonArticleReportResponse>> response =
                 dbArticlesService.getAllArticleTypesWithArticles(days);
         return ResponseEntity.ok(response);
@@ -310,14 +310,14 @@ public class ArticleApiController {
                     "This endpoint increments the view count of the article specified by its ID.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "View count incremented successfully",
-                            content = @Content(mediaType = "application/json")),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Article not found",
-                            content = @Content(mediaType = "application/json"))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "View count incremented successfully",
+                        content = @Content(mediaType = "application/json")),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Article not found",
+                        content = @Content(mediaType = "application/json"))
             })
     @PostMapping("/increment-view/{id}")
     public ResponseEntity<?> incrementViewCount(@PathVariable UUID id) {
@@ -332,14 +332,14 @@ public class ArticleApiController {
                             + " its ID.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Article of note status toggled successfully",
-                            content = @Content(mediaType = "application/json")),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "Article not found",
-                            content = @Content(mediaType = "application/json"))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Article of note status toggled successfully",
+                        content = @Content(mediaType = "application/json")),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "Article not found",
+                        content = @Content(mediaType = "application/json"))
             })
     @PostMapping("/toggle-article-of-note/{id}")
     public ResponseEntity<?> toggleArticleOfNote(@PathVariable UUID id) {
@@ -354,18 +354,18 @@ public class ArticleApiController {
                             + " descending order.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Top 10 articles retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(implementation = MonthlyArticleDTO.class))),
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "No articles found",
-                            content = @Content(mediaType = "application/json"))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Top 10 articles retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(implementation = MonthlyArticleDTO.class))),
+                @ApiResponse(
+                        responseCode = "204",
+                        description = "No articles found",
+                        content = @Content(mediaType = "application/json"))
             })
     @GetMapping("/top-10")
     public ResponseEntity<List<MonthlyArticleDTO>> getTop10Articles() {
@@ -381,18 +381,18 @@ public class ArticleApiController {
                     "This endpoint fetches all articles that are marked as 'articles of note'.")
     @ApiResponses(
             value = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Articles of note retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = "application/json",
-                                    schema =
-                                    @Schema(implementation = MonthlyArticleDTO.class))),
-                    @ApiResponse(
-                            responseCode = "204",
-                            description = "No articles of note found",
-                            content = @Content(mediaType = "application/json"))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Articles of note retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(implementation = MonthlyArticleDTO.class))),
+                @ApiResponse(
+                        responseCode = "204",
+                        description = "No articles of note found",
+                        content = @Content(mediaType = "application/json"))
             })
     @GetMapping("/articles-of-note")
     public ResponseEntity<List<JsonArticleReportResponse>> getArticlesOfNote() {
