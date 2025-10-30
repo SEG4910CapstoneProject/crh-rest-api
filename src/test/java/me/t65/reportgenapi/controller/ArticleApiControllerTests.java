@@ -336,13 +336,14 @@ public class ArticleApiControllerTests {
         request.setTitle("Valid Title");
         request.setDescription("Description");
 
-        when(dbArticlesService.getArticleByLink(request.getLink())).thenReturn(Optional.empty());
-        doNothing().when(dbArticlesService).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        when(dbArticlesService.ingestFromUrl(anyString(), anyString(), anyString()))
+                .thenReturn(true);
 
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
-        verify(dbArticlesService, times(1)).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, times(1))
+                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
     }
 
     @Test
@@ -357,7 +358,8 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.CONFLICT, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, times(1))
+                .ingestFromUrl(request.getLink(), request.getTitle(), request.getDescription());
     }
 
     @Test
@@ -369,7 +371,7 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never()).ingestFromUrl(anyString(), anyString(), any());
     }
 
     @Test
@@ -381,7 +383,7 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never()).ingestFromUrl(anyString(), anyString(), any());
     }
 
     @Test
@@ -398,7 +400,7 @@ public class ArticleApiControllerTests {
         ResponseEntity<?> actual = articleApiController.ingestArticle(request);
 
         assertEquals(HttpStatus.BAD_REQUEST, actual.getStatusCode());
-        verify(dbArticlesService, never()).addNewArticle(any(), anyString(), anyString(), anyString(), any());
+        verify(dbArticlesService, never()).ingestFromUrl(anyString(), anyString(), any());
     }
 
     @Test
