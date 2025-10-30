@@ -3,7 +3,9 @@ name: Call Build and Test workflow
 on:
   push:
     branches:
-      - main
+      - '**' #runs workflow on any branch
+    pull_request:
+      - '**'
   workflow_dispatch:
 jobs:
   call-build-and-test:

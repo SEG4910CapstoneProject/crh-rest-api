@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
+import me.t65.reportgenapi.controller.payload.JsonArticleReportResponseWithTypeIncluded;
 import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
 import me.t65.reportgenapi.db.postgres.entities.CategoryEntity;
 import me.t65.reportgenapi.db.postgres.entities.IOCEntity;
@@ -8,10 +9,6 @@ import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public interface DbArticlesService {
     Optional<JsonArticleReportResponse> getArticleById(UUID articleId);
@@ -41,6 +38,10 @@ public interface DbArticlesService {
     public List<JsonArticleReportResponse> getArticlesByType(String type);
 
     public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days);
+
+    public Optional<JsonArticleReportResponseWithTypeIncluded> getArticleByIdTypeIncluded(UUID articleId);
+
+    public List<JsonArticleReportResponseWithTypeIncluded> getAllArticlesWithTypes(int days);
 
     public List<MonthlyArticleDTO> getTop10Articles();
 

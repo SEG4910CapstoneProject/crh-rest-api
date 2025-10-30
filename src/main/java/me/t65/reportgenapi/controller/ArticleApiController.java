@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import me.t65.reportgenapi.controller.payload.ArticleByLinkRequest;
 import me.t65.reportgenapi.controller.payload.ArticleIngestRequest;
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
+import me.t65.reportgenapi.controller.payload.JsonArticleReportResponseWithTypeIncluded;
 import me.t65.reportgenapi.controller.payload.UidResponse;
 import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
 import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
@@ -281,6 +282,32 @@ public class ArticleApiController {
             getAllArticleTypesWithArticles(@RequestParam int days) {
         Map<String, List<JsonArticleReportResponse>> response =
                 dbArticlesService.getAllArticleTypesWithArticles(days);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @Operation(
+            summary = "Retrieve all articles with the type as an attribute of the article object",
+            description =
+                    "This endpoint returns all articles(their type is an attribute of every element in the list) from the past specified number of days.")
+    @ApiResponses(
+            value = {
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Article with all attributes retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = "application/json",
+                                        schema =
+                                                @Schema(
+                                                        implementation =
+                                                                JsonArticleReportResponseWithTypeIncluded.class)))
+            })
+    @GetMapping("/get-all-articles-with-types")
+    public ResponseEntity<List<JsonArticleReportResponseWithTypeIncluded>>
+            getAllArticlesWithTypeIncluded(@RequestParam int days) {
+        List<JsonArticleReportResponseWithTypeIncluded> response =
+                dbArticlesService.getAllArticlesWithTypes(days);
         return ResponseEntity.ok(response);
     }
 
