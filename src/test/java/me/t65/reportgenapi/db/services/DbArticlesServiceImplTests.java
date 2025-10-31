@@ -669,5 +669,35 @@ public class DbArticlesServiceImplTests {
                 dbArticlesService.getAllArticlesWithTypes(10);
         assertSame(element1.get(), actual.get(0));
         assertSame(element2.get(), actual.get(1));
+        assertEquals(2, actual.size());
+    }
+
+    @Test
+    public void testGetAllArticlesWithTypesWithOneException() {
+        List<UUID> articlesIdsAfterDate = new ArrayList<>(Arrays.asList(STAT_UID_1, STAT_UID_2));
+        JsonIocResponse element1_ioc = new JsonIocResponse(1, 1, "ipv4", "100.100.100.100");
+        LocalDate date1 = LocalDate.of(1987, 10, 10);
+        Optional<JsonArticleReportResponseWithTypeIncluded> element1 =
+                Optional.of(
+                        new JsonArticleReportResponseWithTypeIncluded(
+                                STAT_ID_1,
+                                "company X was hacked",
+                                "On Day X in Year Y, company X suffered a huge data breach because"
+                                        + " their OS wasn't up to date",
+                                "test_cat",
+                                "www.mock-link.com",
+                                new ArrayList<>(Arrays.asList(element1_ioc)),
+                                date1,
+                                "Malware"));
+
+        when(articlesRepository.findAllArticleIdAfterDate(any(Instant.class)))
+                .thenReturn(articlesIdsAfterDate);
+        doReturn(element1).when(dbArticlesService).getArticleByIdTypeIncluded(STAT_UID_1);
+        when(dbArticlesService.getArticleByIdTypeIncluded(STAT_UID_2)).thenThrow(new RuntimeException("Details couldnt be fetched"));
+
+        List<JsonArticleReportResponseWithTypeIncluded> actual =
+                dbArticlesService.getAllArticlesWithTypes(10);
+        assertSame(element1.get(), actual.get(0));
+        assertEquals(1, actual.size());
     }
 }
