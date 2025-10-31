@@ -165,5 +165,4 @@ public class ArticlesRepositoryStub implements ArticlesRepository {
     public List<UUID> findAllArticleIdAfterDate(Instant start_date) {
         return List.of();
     }
-
 }

@@ -285,11 +285,11 @@ public class ArticleApiController {
         return ResponseEntity.ok(response);
     }
 
-
     @Operation(
             summary = "Retrieve all articles with the type as an attribute of the article object",
             description =
-                    "This endpoint returns all articles(their type is an attribute of every element in the list) from the past specified number of days.")
+                    "This endpoint returns all articles(their type is an attribute of every element"
+                            + " in the list) from the past specified number of days.")
     @ApiResponses(
             value = {
                 @ApiResponse(
@@ -301,7 +301,8 @@ public class ArticleApiController {
                                         schema =
                                                 @Schema(
                                                         implementation =
-                                                                JsonArticleReportResponseWithTypeIncluded.class)))
+                                                                JsonArticleReportResponseWithTypeIncluded
+                                                                        .class)))
             })
     @GetMapping("/get-all-articles-with-types")
     public ResponseEntity<List<JsonArticleReportResponseWithTypeIncluded>>

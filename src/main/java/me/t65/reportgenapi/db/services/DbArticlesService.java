@@ -39,7 +39,8 @@ public interface DbArticlesService {
 
     public Map<String, List<JsonArticleReportResponse>> getAllArticleTypesWithArticles(int days);
 
-    public Optional<JsonArticleReportResponseWithTypeIncluded> getArticleByIdTypeIncluded(UUID articleId);
+    public Optional<JsonArticleReportResponseWithTypeIncluded> getArticleByIdTypeIncluded(
+            UUID articleId);
 
     public List<JsonArticleReportResponseWithTypeIncluded> getAllArticlesWithTypes(int days);
 

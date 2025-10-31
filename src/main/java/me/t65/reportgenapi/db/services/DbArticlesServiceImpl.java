@@ -108,7 +108,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     }
 
     @Override
-    public Optional<JsonArticleReportResponseWithTypeIncluded> getArticleByIdTypeIncluded(UUID articleId) {
+    public Optional<JsonArticleReportResponseWithTypeIncluded> getArticleByIdTypeIncluded(
+            UUID articleId) {
         Optional<ArticlesEntity> articlesEntity = articlesRepository.findById(articleId);
 
         if (articlesEntity.isEmpty()) {
@@ -503,15 +504,21 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     public List<JsonArticleReportResponseWithTypeIncluded> getAllArticlesWithTypes(int days) {
         LocalDate today = LocalDate.now();
         LocalDate startDate = today.minusDays(days);
-  
-        List<UUID> article_ids = articlesRepository.findAllArticleIdAfterDate(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        List<UUID> article_ids =
+                articlesRepository.findAllArticleIdAfterDate(
+                        startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         List<JsonArticleReportResponseWithTypeIncluded> result = new ArrayList<>();
         for (UUID id : article_ids) {
             try {
-                JsonArticleReportResponseWithTypeIncluded element = getArticleByIdTypeIncluded(id).get();
+                JsonArticleReportResponseWithTypeIncluded element =
+                        getArticleByIdTypeIncluded(id).get();
                 result.add(element);
-            } catch(Exception e) {
-                LOGGER.error("For id {}, the article details couldn't be fetched. \n{}", id,e.getMessage());
+            } catch (Exception e) {
+                LOGGER.error(
+                        "For id {}, the article details couldn't be fetched. \n{}",
+                        id,
+                        e.getMessage());
             }
         }
         return result;
