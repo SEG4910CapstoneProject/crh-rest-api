@@ -509,7 +509,6 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                 articlesRepository.findAllArticleIdAfterDate(
                         startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
         List<JsonArticleReportResponseWithTypeIncluded> result = new ArrayList<>();
-        System.out.println("the article ids are: "+article_ids.size());
         for (UUID id : article_ids) {
             try {
                 JsonArticleReportResponseWithTypeIncluded element =
