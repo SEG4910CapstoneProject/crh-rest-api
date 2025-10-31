@@ -4,9 +4,16 @@ import static me.t65.reportgenapi.TestUtils.*;
 import static me.t65.reportgenapi.TestUtils.assertListContains;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
+import me.t65.reportgenapi.controller.payload.JsonArticleReportResponseWithTypeIncluded;
 import me.t65.reportgenapi.controller.payload.JsonIocResponse;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
@@ -21,11 +28,13 @@ import me.t65.reportgenapi.utils.NormalizeLinks;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -71,7 +80,8 @@ public class DbArticlesServiceImplTests {
 
     @MockBean private UserFavouriteRepository userFavouriteRepository;
 
-    @Autowired DbArticlesServiceImpl dbArticlesService;
+    @Autowired @SpyBean DbArticlesServiceImpl dbArticlesService;
+    //@Spy DbArticlesService dbArticlesServiceMock;
 
     @Test
     public void testAddArticlesToReport_success() {
@@ -617,5 +627,29 @@ public class DbArticlesServiceImplTests {
         assertTrue(result.containsKey(articleId2));
         assertEquals("Category 1", result.get(articleId1).getCategoryName());
         assertEquals("Category 2", result.get(articleId2).getCategoryName());
+    }
+
+    @Test
+    public void testGetAllArticlesWithTypes() {
+        List<UUID> articlesIdsAfterDate = new ArrayList<>(Arrays.asList(STAT_UID_1,STAT_UID_2));
+        JsonIocResponse element1_ioc = new JsonIocResponse(1,1,"ipv4","100.100.100.100");
+        LocalDate date1 = LocalDate.of(1987,10,10);
+        Optional<JsonArticleReportResponseWithTypeIncluded> element1 = Optional.of(new JsonArticleReportResponseWithTypeIncluded(STAT_ID_1,"company X was hacked",
+        "On Day X in Year Y, company X suffered a huge data breach because their OS wasn't up to date",
+        "test_cat","www.mock-link.com",new ArrayList<>(Arrays.asList(element1_ioc)),date1,"Malware"));
+
+        JsonIocResponse element2_ioc = new JsonIocResponse(1,1,"ipv6","fe800/");
+        LocalDate date2 = LocalDate.of(2014,10,10);
+        Optional<JsonArticleReportResponseWithTypeIncluded> element2 = Optional.of(new JsonArticleReportResponseWithTypeIncluded(STAT_ID_2,"company Y was hacked",
+        "On Day alpha in Year gamma, company Y suffered a huge DDOS because their server had vulnerabilities.",
+        "test_cat2","www.mocky-link.com",new ArrayList<>(Arrays.asList(element2_ioc)),date2,"Vulnerability"));
+
+        when(articlesRepository.findAllArticleIdAfterDate(any(Instant.class))).thenReturn(articlesIdsAfterDate);
+        doReturn(element1).when(dbArticlesService).getArticleByIdTypeIncluded(STAT_UID_1);
+        doReturn(element2).when(dbArticlesService).getArticleByIdTypeIncluded(STAT_UID_2);
+
+        List<JsonArticleReportResponseWithTypeIncluded> actual = dbArticlesService.getAllArticlesWithTypes(10);
+        assertSame(element1.get(),actual.get(0));
+        assertSame(element2.get(),actual.get(1));
     }
 }
