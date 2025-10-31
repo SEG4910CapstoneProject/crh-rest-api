@@ -129,12 +129,23 @@ public class ArticleApiController {
                 @ApiResponse(responseCode = "500", description = "Error during ingestion")
             })
     @PostMapping("/ingest")
-    public ResponseEntity<?> ingestArticle(@RequestBody ArticleIngestRequest request) {
+    public ResponseEntity<?> ingestArticle(
+            @RequestBody ArticleIngestRequest request,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        // Require login
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "You must be logged in to submit an article."));
+        }
+
         LOGGER.info(
                 "Ingest request received: link='{}', title='{}'",
                 request.getLink(),
                 request.getTitle());
+
         try {
+            // Validate inputs
             if (request.getLink() == null || request.getLink().isBlank()) {
                 LOGGER.warn("Ingest failed — missing link.");
                 return ResponseEntity.badRequest().body(Map.of("message", "Link is required"));
@@ -144,23 +155,32 @@ public class ArticleApiController {
                 return ResponseEntity.badRequest().body(Map.of("message", "Title is required"));
             }
 
+            // Validate URL format
             try {
                 new URL(request.getLink()); // throws MalformedURLException if invalid
             } catch (MalformedURLException e) {
-                LOGGER.warn(" Invalid URL provided: {}", request.getLink());
+                LOGGER.warn("Invalid URL provided: {}", request.getLink());
                 return ResponseEntity.badRequest()
                         .body(Map.of("message", "Please provide a valid URL."));
             }
 
-            boolean added =
-                    dbArticlesService.ingestFromUrl(
-                            request.getLink(), request.getTitle(), request.getDescription());
-
-            if (!added) {
+            // Check for duplicates
+            Optional<JsonArticleReportResponse> existing =
+                    dbArticlesService.getArticleByLink(request.getLink());
+            if (existing.isPresent()) {
                 LOGGER.info("Article already exists: {}", request.getLink());
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of("message", "Article already exists"));
             }
+
+            // Add article manually
+            UUID newArticleId = UUID.randomUUID();
+            dbArticlesService.addNewArticle(
+                    newArticleId,
+                    request.getTitle(),
+                    request.getLink(),
+                    request.getDescription(),
+                    Instant.now());
 
             LOGGER.info("Successfully ingested new article: {}", request.getLink());
             return ResponseEntity.ok(Map.of("message", "Article successfully ingested"));
@@ -416,5 +436,24 @@ public class ArticleApiController {
         return manualArticles.isEmpty()
                 ? ResponseEntity.noContent().build()
                 : ResponseEntity.ok(manualArticles);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteManualArticle(
+            @PathVariable UUID id,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "You must be logged in to delete an article."));
+        }
+
+        boolean deleted = dbArticlesService.deleteManualArticle(id);
+        if (!deleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Article not found or not manually added."));
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Article deleted successfully."));
     }
 }
