@@ -1,3 +1,7 @@
+# coverage
+
+To get the level of covergae for the rest api, run: mvn verify then mvn jacoco:report
+
 # rest-api
 
 Spring boot rest api for querying the database
