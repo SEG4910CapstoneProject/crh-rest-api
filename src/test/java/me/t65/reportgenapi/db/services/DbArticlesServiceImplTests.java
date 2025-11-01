@@ -6,9 +6,12 @@ import static me.t65.reportgenapi.TestUtils.assertListContains;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anySet;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
@@ -27,11 +30,9 @@ import me.t65.reportgenapi.db.postgres.repository.*;
 import me.t65.reportgenapi.utils.DateService;
 import me.t65.reportgenapi.utils.NormalizeLinks;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -84,11 +85,6 @@ public class DbArticlesServiceImplTests {
     @MockBean private UserFavouriteRepository userFavouriteRepository;
 
     @Autowired @SpyBean DbArticlesServiceImpl dbArticlesService;
-
-    @BeforeEach
-    void setUp() {
-        dbArticlesService = Mockito.spy(dbArticlesService);
-    }
 
     @Test
     public void testAddArticlesToReport_success() {
@@ -702,13 +698,15 @@ public class DbArticlesServiceImplTests {
         when(articlesRepository.findAllArticleIdAfterDate(any(Instant.class)))
                 .thenReturn(articlesIdsAfterDate);
         doReturn(element1).when(dbArticlesService).getArticleByIdTypeIncluded(STAT_UID_1);
-        when(dbArticlesService.getArticleByIdTypeIncluded(STAT_UID_2)).thenThrow(new RuntimeException("Details couldnt be fetched"));
+        when(dbArticlesService.getArticleByIdTypeIncluded(STAT_UID_2))
+                .thenThrow(new RuntimeException("Details couldnt be fetched"));
 
         List<JsonArticleReportResponseWithTypeIncluded> actual =
                 dbArticlesService.getAllArticlesWithTypes(10);
         assertSame(element1.get(), actual.get(0));
         assertEquals(1, actual.size());
     }
+
     @Test
     void testGetArticlesByType_success() {
         String articleType = "TECH";
@@ -1543,5 +1541,95 @@ public class DbArticlesServiceImplTests {
 
         assertTrue(thrown.getMessage().contains("Error ingesting article"));
         verify(dbArticlesService, times(1)).addNewArticle(any(), any(), any(), any(), any());
+    }
+
+    @Test
+    void testGetArticleByIdTypeIncluded_empty_main() {
+        when(articlesRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+        Optional<JsonArticleReportResponseWithTypeIncluded> actual =
+                dbArticlesService.getArticleByIdTypeIncluded(STAT_UID_1);
+        assertEquals(Optional.empty(), actual);
+    }
+
+    @Test
+    void testGetArticleByIdTypeIncluded_empty_secondary() {
+        String sampleLink = "https://example.com/resource";
+        long expectedHash = NormalizeLinks.normalizeAndHashLink(sampleLink);
+
+        when(articlesRepository.findById(any(UUID.class)))
+                .thenReturn(
+                        Optional.of(
+                                new ArticlesEntity(
+                                        STAT_UID_1,
+                                        1,
+                                        Instant.ofEpochMilli(1000),
+                                        Instant.ofEpochMilli(2000),
+                                        false,
+                                        false,
+                                        expectedHash)));
+        when(articleContentRepository.findById(STAT_UID_1)).thenReturn(Optional.empty());
+
+        Optional<JsonArticleReportResponseWithTypeIncluded> actual =
+                dbArticlesService.getArticleByIdTypeIncluded(STAT_UID_1);
+        assertEquals(Optional.empty(), actual);
+    }
+
+    @Test
+    void testGetArticleByIdTypeIncluded_full_success() {
+        String sampleLink = "https://example.com/resource";
+        long expectedHash = NormalizeLinks.normalizeAndHashLink(sampleLink);
+        List<IOCEntity> iocEntities = List.of(new IOCEntity(1, 1, "someValue"));
+        List<IOCArticlesEntity> iocArticlesEntities =
+                List.of(new IOCArticlesEntity(new IOCArticlesId(1, STAT_UID_1)));
+
+        when(articlesRepository.findById(any(UUID.class)))
+                .thenReturn(
+                        Optional.of(
+                                new ArticlesEntity(
+                                        STAT_UID_1,
+                                        1,
+                                        Instant.ofEpochMilli(2000),
+                                        Instant.ofEpochMilli(1000),
+                                        false,
+                                        false,
+                                        expectedHash)));
+
+        when(articleContentRepository.findById(STAT_UID_1))
+                .thenReturn(
+                        Optional.of(
+                                new ArticleContentEntity(
+                                        STAT_UID_1,
+                                        sampleLink,
+                                        "this is a name",
+                                        Instant.ofEpochMilli(1000),
+                                        "this is a description")));
+
+        when(iocArticlesEntityRepository.findByIocArticlesId_ArticleIdIn(anyCollection()))
+                .thenReturn(iocArticlesEntities);
+        when(iocEntityRepository.findAllById(any())).thenReturn(iocEntities);
+        when(iocTypeEntityRepository.findAll()).thenReturn(List.of(new IOCTypeEntity(1, "url")));
+        when(articleCategoryRepository.findByArticleCategoryId_ArticleIdIn(any()))
+                .thenReturn(
+                        List.of(new ArticleCategoryEntity(new ArticleCategoryId(1, STAT_UID_1))));
+        when(categoryRepository.findAllById(any()))
+                .thenReturn(List.of(new CategoryEntity(1, "Canada")));
+        when(articleTypeRepository.findById(STAT_UID_1))
+                .thenReturn(Optional.of(new ArticleTypeEntity("Malware", STAT_UID_1)));
+
+        Optional<JsonArticleReportResponseWithTypeIncluded> actual =
+                dbArticlesService.getArticleByIdTypeIncluded(STAT_UID_1);
+        JsonArticleReportResponseWithTypeIncluded expected =
+                new JsonArticleReportResponseWithTypeIncluded(
+                        STAT_ID_1,
+                        "this is a name",
+                        "this is a description",
+                        "Canada",
+                        sampleLink,
+                        List.of(new JsonIocResponse(1, 1, "url", "someValue")),
+                        LocalDate.ofInstant(Instant.ofEpochMilli(1000), ZoneOffset.UTC),
+                        "Malware");
+
+        assertTrue(actual.isPresent());
+        assertEquals(expected, actual.get());
     }
 }

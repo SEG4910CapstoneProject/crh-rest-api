@@ -325,11 +325,15 @@ public class ArticleApiController {
                                                                         .class)))
             })
     @GetMapping("/get-all-articles-with-types")
-    public ResponseEntity<List<JsonArticleReportResponseWithTypeIncluded>>
-            getAllArticlesWithTypeIncluded(@RequestParam int days) {
-        List<JsonArticleReportResponseWithTypeIncluded> response =
-                dbArticlesService.getAllArticlesWithTypes(days);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> getAllArticlesWithTypeIncluded(@RequestParam int days) {
+        try {
+            List<JsonArticleReportResponseWithTypeIncluded> response =
+                    dbArticlesService.getAllArticlesWithTypes(days);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Something went wrong while getting all articles");
+        }
     }
 
     @Operation(
