@@ -75,6 +75,12 @@ public class DbArticlesServiceImplTests {
 
     @MockBean private UserFavouriteRepository userFavouriteRepository;
 
+
+    @MockBean private DbUserTagsService dbUserTagsService;
+    @MockBean private UserTagRepository userTagRepository;
+    @MockBean private UserTagArticleRepository userTagArticleRepository;
+
+
     @Autowired DbArticlesServiceImpl dbArticlesService;
 
     @BeforeEach

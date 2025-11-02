@@ -50,6 +50,13 @@ public class DbStatsServiceImplTests {
 
     @MockBean private UserFavouriteRepository userFavouriteRepository;
 
+
+    @MockBean private DbUserTagsService dbUserTagsService;
+    @MockBean private DbArticlesService dbArticlesService;
+    @MockBean private UserTagRepository userTagRepository;
+    @MockBean private UserTagArticleRepository userTagArticleRepository;
+
+
     @Test
     public void testAddStatsToReport_success() {
         when(statisticsRepository.existsById(any())).thenReturn(true);

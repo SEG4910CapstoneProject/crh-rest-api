@@ -1,10 +1,9 @@
 package me.t65.reportgenapi;
 
-import me.t65.reportgenapi.db.postgres.repository.ArticleTypeRepository;
-import me.t65.reportgenapi.db.postgres.repository.MonthlyArticlesRepository;
-import me.t65.reportgenapi.db.postgres.repository.UserFavouriteRepository;
-import me.t65.reportgenapi.db.postgres.repository.UserRepository;
+import me.t65.reportgenapi.db.postgres.repository.*;
 
+import me.t65.reportgenapi.db.services.DbArticlesService;
+import me.t65.reportgenapi.db.services.DbUserTagsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -41,6 +40,13 @@ public class GenerateSwaggerDocsTest {
     @MockBean BCryptPasswordEncoder passwordEncoder;
 
     @MockBean private UserFavouriteRepository userFavouriteRepository;
+
+    @MockBean UserTagRepository userTagRepository;
+
+    @MockBean UserTagArticleRepository userTagArticleRepository;
+
+    @MockBean DbUserTagsService dbUserTagsService;
+    @MockBean DbArticlesService dbArticlesService;
 
     @Autowired private TestRestTemplate restTemplate;
 

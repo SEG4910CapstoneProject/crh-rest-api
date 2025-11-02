@@ -61,6 +61,11 @@ public class DbReportServiceImplTests {
 
     @MockBean private UserFavouriteRepository userFavouriteRepository;
 
+    @MockBean private DbUserTagsService dbUserTagsService;
+    @MockBean private DbArticlesService dbArticlesService;
+    @MockBean UserTagRepository userTagRepository;
+    @MockBean UserTagArticleRepository userTagArticleRepository;
+
     @Autowired DbReportServiceImpl dbService;
 
     //     @Test
@@ -189,6 +194,11 @@ public class DbReportServiceImplTests {
         when(articleCategoryRepository.findByArticleCategoryId_ArticleIdIn(any()))
                 .thenReturn(List.of(mockArticleCategoryEntity));
         when(categoryRepository.findAllById(any())).thenReturn(List.of(mockCategoryEntity));
+
+        // Make the mocked DbArticlesService return a CategoryEntity map
+        Map<UUID, CategoryEntity> mockCategoryMap = new HashMap<>();
+        mockCategoryMap.put(MOCK_ARTICLE_ID, new CategoryEntity(1, "SomeCategory"));
+        when(dbArticlesService.getArticleToCategoryEntityMap(any())).thenReturn(mockCategoryMap);
 
         Optional<RawReport> result = dbService.getRawReport(reportId);
 

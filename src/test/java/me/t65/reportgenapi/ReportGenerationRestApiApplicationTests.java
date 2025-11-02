@@ -2,6 +2,8 @@ package me.t65.reportgenapi;
 
 import me.t65.reportgenapi.db.postgres.repository.*;
 
+import me.t65.reportgenapi.db.services.DbArticlesService;
+import me.t65.reportgenapi.db.services.DbUserTagsService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -17,6 +19,11 @@ class ReportGenerationRestApiApplicationTests {
     @MockBean UserRepository userRepository;
     @MockBean BCryptPasswordEncoder passwordEncoder;
     @MockBean UserFavouriteRepository userFavouriteRepository;
+    @MockBean UserTagRepository userTagRepository;
+    @MockBean UserTagArticleRepository userTagArticleRepository;
+
+    @MockBean DbUserTagsService dbUserTagsService;
+    @MockBean DbArticlesService dbArticlesService;
 
     @Test
     void contextLoads() {}
