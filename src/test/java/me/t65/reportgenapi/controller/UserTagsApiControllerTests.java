@@ -1,5 +1,8 @@
 package me.t65.reportgenapi.controller;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.db.postgres.entities.UserEntity;
 import me.t65.reportgenapi.db.postgres.entities.UserTagEntity;
@@ -16,9 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class UserTagsApiControllerTests {

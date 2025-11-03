@@ -2,6 +2,7 @@ package me.t65.reportgenapi.stubs;
 
 import me.t65.reportgenapi.db.postgres.entities.UserTagArticleEntity;
 import me.t65.reportgenapi.db.postgres.repository.UserTagArticleRepository;
+
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +11,8 @@ import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.UUID;
+import java.util.function.Function;
 
 @Component
 public class UserTagArticleRepositoryStub implements UserTagArticleRepository {

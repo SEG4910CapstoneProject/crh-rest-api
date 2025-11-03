@@ -2,6 +2,7 @@ package me.t65.reportgenapi.stubs;
 
 import me.t65.reportgenapi.db.postgres.entities.UserTagEntity;
 import me.t65.reportgenapi.db.postgres.repository.UserTagRepository;
+
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

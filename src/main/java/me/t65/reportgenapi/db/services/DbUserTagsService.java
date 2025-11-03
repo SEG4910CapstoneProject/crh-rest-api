@@ -27,5 +27,4 @@ public interface DbUserTagsService {
     List<JsonArticleReportResponse> getArticlesByTag(Long userId, Long tagId);
 
     UserTagEntity renameTag(Long userId, Long tagId, String newName);
-
 }

@@ -1,7 +1,6 @@
 package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
-import me.t65.reportgenapi.db.postgres.entities.UserFavouriteEntity;
 import me.t65.reportgenapi.db.postgres.entities.UserTagArticleEntity;
 import me.t65.reportgenapi.db.postgres.entities.UserTagEntity;
 import me.t65.reportgenapi.db.postgres.repository.UserFavouriteRepository;
@@ -9,10 +8,8 @@ import me.t65.reportgenapi.db.postgres.repository.UserTagArticleRepository;
 import me.t65.reportgenapi.db.postgres.repository.UserTagRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 import java.util.UUID;
@@ -102,7 +99,9 @@ public class DbUserTagsServiceImpl implements DbUserTagsService {
 
         List<UserTagArticleEntity> mappings = userTagArticleRepository.findByTagId(tagId);
         List<UUID> articleIds =
-                mappings.stream().map(UserTagArticleEntity::getArticleId).collect(Collectors.toList());
+                mappings.stream()
+                        .map(UserTagArticleEntity::getArticleId)
+                        .collect(Collectors.toList());
 
         List<JsonArticleReportResponse> result = new ArrayList<>();
         for (UUID id : articleIds) {
@@ -114,8 +113,13 @@ public class DbUserTagsServiceImpl implements DbUserTagsService {
     @Override
     public UserTagEntity renameTag(Long userId, Long tagId, String newName) {
         // Fetch the tag that belongs to this user
-        UserTagEntity tag = userTagRepository.findByUserIdAndTagId(userId, tagId)
-                .orElseThrow(() -> new IllegalArgumentException("Tag not found for user: " + userId));
+        UserTagEntity tag =
+                userTagRepository
+                        .findByUserIdAndTagId(userId, tagId)
+                        .orElseThrow(
+                                () ->
+                                        new IllegalArgumentException(
+                                                "Tag not found for user: " + userId));
 
         // Validate new name
         if (newName == null || newName.trim().isEmpty()) {
@@ -131,5 +135,4 @@ public class DbUserTagsServiceImpl implements DbUserTagsService {
         tag.setTagName(newName.trim());
         return userTagRepository.save(tag);
     }
-
 }

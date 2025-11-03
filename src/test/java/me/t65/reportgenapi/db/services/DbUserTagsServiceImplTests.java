@@ -1,5 +1,8 @@
 package me.t65.reportgenapi.db.services;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.db.postgres.entities.*;
 import me.t65.reportgenapi.db.postgres.repository.*;
@@ -13,9 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.*;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DbUserTagsServiceImplTests {
@@ -57,7 +57,8 @@ class DbUserTagsServiceImplTests {
     @Test
     void testCreateTag_success() {
         when(userTagRepository.existsByUserIdAndTagName(userId, "NewTag")).thenReturn(false);
-        when(userTagRepository.save(any(UserTagEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(userTagRepository.save(any(UserTagEntity.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
         UserTagEntity result = dbUserTagsService.createTag(userId, "NewTag");
 
@@ -69,7 +70,8 @@ class DbUserTagsServiceImplTests {
     void testCreateTag_alreadyExists_throwsException() {
         when(userTagRepository.existsByUserIdAndTagName(userId, "MyTag")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class, () -> dbUserTagsService.createTag(userId, "MyTag"));
+        assertThrows(
+                IllegalArgumentException.class, () -> dbUserTagsService.createTag(userId, "MyTag"));
         verify(userTagRepository, never()).save(any());
     }
 
@@ -98,7 +100,8 @@ class DbUserTagsServiceImplTests {
     //  addArticleToTag
     @Test
     void testAddArticleToTag_success() {
-        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(true);
+        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId))
+                .thenReturn(true);
         when(userTagArticleRepository.existsById(any())).thenReturn(false);
 
         boolean result = dbUserTagsService.addArticleToTag(userId, tagId, articleId);
@@ -109,9 +112,11 @@ class DbUserTagsServiceImplTests {
 
     @Test
     void testAddArticleToTag_articleNotFavourite_throwsException() {
-        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId)).thenReturn(false);
+        when(userFavouriteRepository.existsByUserIdAndArticleId(userId, articleId))
+                .thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> dbUserTagsService.addArticleToTag(userId, tagId, articleId));
         verify(userTagArticleRepository, never()).save(any());
     }
@@ -156,7 +161,8 @@ class DbUserTagsServiceImplTests {
     void testRenameTag_success() {
         when(userTagRepository.findByUserIdAndTagId(userId, tagId)).thenReturn(Optional.of(tag));
         when(userTagRepository.existsByUserIdAndTagName(userId, "Updated")).thenReturn(false);
-        when(userTagRepository.save(any(UserTagEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(userTagRepository.save(any(UserTagEntity.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
 
         UserTagEntity result = dbUserTagsService.renameTag(userId, tagId, "Updated");
 
@@ -168,7 +174,8 @@ class DbUserTagsServiceImplTests {
     void testRenameTag_tagNotFound_throwsException() {
         when(userTagRepository.findByUserIdAndTagId(userId, tagId)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> dbUserTagsService.renameTag(userId, tagId, "NewName"));
     }
 
@@ -177,7 +184,8 @@ class DbUserTagsServiceImplTests {
         when(userTagRepository.findByUserIdAndTagId(userId, tagId)).thenReturn(Optional.of(tag));
         when(userTagRepository.existsByUserIdAndTagName(userId, "DupName")).thenReturn(true);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> dbUserTagsService.renameTag(userId, tagId, "DupName"));
     }
 
@@ -185,7 +193,8 @@ class DbUserTagsServiceImplTests {
     void testRenameTag_blankName_throwsException() {
         when(userTagRepository.findByUserIdAndTagId(userId, tagId)).thenReturn(Optional.of(tag));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(
+                IllegalArgumentException.class,
                 () -> dbUserTagsService.renameTag(userId, tagId, " "));
     }
 }

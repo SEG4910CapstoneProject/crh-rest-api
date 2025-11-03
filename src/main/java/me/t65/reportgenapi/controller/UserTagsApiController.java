@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
 import me.t65.reportgenapi.db.postgres.entities.UserEntity;
 import me.t65.reportgenapi.db.postgres.entities.UserTagEntity;
@@ -55,29 +56,31 @@ public class UserTagsApiController {
     }
 
     @PostMapping("/{tagId}/articles/{articleId}")
-    public ResponseEntity<Void> addArticleToTag(@PathVariable Long tagId, @PathVariable UUID articleId) {
+    public ResponseEntity<Void> addArticleToTag(
+            @PathVariable Long tagId, @PathVariable UUID articleId) {
         UserEntity user = currentUser.requireUser();
         dbUserTagsService.addArticleToTag(user.getUserId(), tagId, articleId);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{tagId}/articles/{articleId}")
-    public ResponseEntity<Void> removeArticleFromTag(@PathVariable Long tagId, @PathVariable UUID articleId) {
+    public ResponseEntity<Void> removeArticleFromTag(
+            @PathVariable Long tagId, @PathVariable UUID articleId) {
         UserEntity user = currentUser.requireUser();
         dbUserTagsService.removeArticleFromTag(user.getUserId(), tagId, articleId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{tagId}/articles")
-    public ResponseEntity<List<JsonArticleReportResponse>> getArticlesByTag(@PathVariable Long tagId) {
+    public ResponseEntity<List<JsonArticleReportResponse>> getArticlesByTag(
+            @PathVariable Long tagId) {
         UserEntity user = currentUser.requireUser();
         return ResponseEntity.ok(dbUserTagsService.getArticlesByTag(user.getUserId(), tagId));
     }
 
     @PutMapping("/{tagId}")
     public ResponseEntity<UserTagEntity> renameTag(
-            @PathVariable Long tagId,
-            @RequestBody Map<String, String> body) {
+            @PathVariable Long tagId, @RequestBody Map<String, String> body) {
 
         UserEntity user = currentUser.requireUser();
         String newName = body.get("tagName");
@@ -86,8 +89,8 @@ public class UserTagsApiController {
             return ResponseEntity.badRequest().body(null);
         }
 
-        UserTagEntity updated = dbUserTagsService.renameTag(user.getUserId(), tagId, newName.trim());
+        UserTagEntity updated =
+                dbUserTagsService.renameTag(user.getUserId(), tagId, newName.trim());
         return ResponseEntity.ok(updated);
     }
-
 }

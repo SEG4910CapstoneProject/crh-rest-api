@@ -1,9 +1,9 @@
 package me.t65.reportgenapi;
 
 import me.t65.reportgenapi.db.postgres.repository.*;
-
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.db.services.DbUserTagsService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
