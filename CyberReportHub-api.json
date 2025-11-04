@@ -21,7 +21,7 @@
           <label for="password" class="sr-only">Password</label>
           <input type="password" id="password" name="password" class="form-control" placeholder="Password" required>
         </p>
-<input name="_csrf" type="hidden" value="2BBpfJQ9hW3lWf68ql6BndZjc9ZV-wbeZz5bh-PkHt9ykb7AvCMMGqMIs1zIbpzay3O1_-9bXrQ0mjPzUQ1p5oLTKrwQ9N_2" />
+<input name="_csrf" type="hidden" value="2Mk03Q3ZbzLoaQREtk_Y8XZ4CmX7elrssigEPotQ2Sv02kxzva9QvmzqVlfFWDd1hWLswxQcJ1yYTG3Bi042CLNk6UjM6nwX" />
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
       </form>
 </div>
