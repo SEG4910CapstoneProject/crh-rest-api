@@ -1,11 +1,11 @@
 package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
+import me.t65.reportgenapi.controller.payload.JsonArticleReportResponseWithTypeIncluded;
 import me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity;
 import me.t65.reportgenapi.db.mongo.repository.ArticleContentRepository;
 import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
 import me.t65.reportgenapi.db.postgres.entities.*;
-import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
 import me.t65.reportgenapi.db.postgres.entities.id.ArticleTypeEntity;
 import me.t65.reportgenapi.db.postgres.entities.id.ReportArticlesId;
 import me.t65.reportgenapi.db.postgres.repository.*;
@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -104,6 +105,40 @@ public class DbArticlesServiceImpl implements DbArticlesService {
                         articleIOCs,
                         dbEntitiesUtils.getIocTypeIdToNameMap(),
                         categoryEntity));
+    }
+
+    @Override
+    public Optional<JsonArticleReportResponseWithTypeIncluded> getArticleByIdTypeIncluded(
+            UUID articleId) {
+        Optional<ArticlesEntity> articlesEntity = articlesRepository.findById(articleId);
+
+        if (articlesEntity.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Optional<ArticleContentEntity> articleContentEntity =
+                articleContentRepository.findById(articleId);
+        if (articleContentEntity.isEmpty()) {
+            return Optional.empty();
+        }
+
+        List<IOCEntity> articleIOCs =
+                getArticleToIocEntityListMap(List.of(articleId)).get(articleId);
+
+        CategoryEntity categoryEntity =
+                getArticleToCategoryEntityMap(List.of(articleId)).get(articleId);
+
+        Optional<ArticleTypeEntity> type = articleTypeRepository.findById(articleId);
+
+        return Optional.of(
+                jsonArticleGenerator.createJsonArticleFromArticleEntityTypeIncluded(
+                        articleId,
+                        articleContentEntity.get(),
+                        articlesEntity.get(),
+                        articleIOCs,
+                        dbEntitiesUtils.getIocTypeIdToNameMap(),
+                        categoryEntity,
+                        type.get()));
     }
 
     @Override
@@ -463,6 +498,30 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             articleTypeMap.put(articleType, filteredArticles);
         }
         return articleTypeMap;
+    }
+
+    @Override
+    public List<JsonArticleReportResponseWithTypeIncluded> getAllArticlesWithTypes(int days) {
+        LocalDate today = LocalDate.now();
+        LocalDate startDate = today.minusDays(days);
+
+        List<UUID> article_ids =
+                articlesRepository.findAllArticleIdAfterDate(
+                        startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        List<JsonArticleReportResponseWithTypeIncluded> result = new ArrayList<>();
+        for (UUID id : article_ids) {
+            try {
+                JsonArticleReportResponseWithTypeIncluded element =
+                        getArticleByIdTypeIncluded(id).get();
+                result.add(element);
+            } catch (Exception e) {
+                LOGGER.error(
+                        "For id {}, the article details couldn't be fetched. \n{}",
+                        id,
+                        e.getMessage());
+            }
+        }
+        return result;
     }
 
     public Optional<MonthlyArticlesEntity> incrementViewCount(UUID articleId) {

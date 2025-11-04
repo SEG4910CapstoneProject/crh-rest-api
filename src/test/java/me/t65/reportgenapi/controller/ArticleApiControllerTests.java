@@ -3,11 +3,17 @@ package me.t65.reportgenapi.controller;
 import static com.mongodb.internal.connection.tlschannel.util.Util.assertTrue;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
 import me.t65.reportgenapi.controller.payload.ArticleByLinkRequest;
 import me.t65.reportgenapi.controller.payload.ArticleIngestRequest;
 import me.t65.reportgenapi.controller.payload.JsonArticleReportResponse;
+import me.t65.reportgenapi.controller.payload.JsonArticleReportResponseWithTypeIncluded;
+import me.t65.reportgenapi.controller.payload.JsonIocResponse;
 import me.t65.reportgenapi.controller.payload.UidResponse;
 import me.t65.reportgenapi.db.postgres.dto.MonthlyArticleDTO;
 import me.t65.reportgenapi.db.postgres.entities.MonthlyArticlesEntity;
@@ -62,6 +68,18 @@ public class ArticleApiControllerTests {
         MonthlyArticlesEntity entity = new MonthlyArticlesEntity();
         entity.setArticleId(id);
         return entity;
+    }
+
+    private JsonArticleReportResponseWithTypeIncluded createMockResponseTypeIncluded(UUID id) {
+        return new JsonArticleReportResponseWithTypeIncluded(
+                id.toString(),
+                "article-title",
+                "this is a description for tests",
+                "Canada",
+                "www.wannacry.com",
+                new ArrayList<>(List.of(new JsonIocResponse(1, 1, "ipv4", "120.120.120.100"))),
+                LocalDate.of(1987, 10, 10),
+                "Malware");
     }
 
     @Test
@@ -215,6 +233,26 @@ public class ArticleApiControllerTests {
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertTrue(actual.getBody().containsKey("A"));
         verify(dbArticlesService, times(1)).getAllArticleTypesWithArticles(days);
+    }
+
+    @Test
+    public void testGetAllArticlesWithTypeIncluded_success() {
+        int days = 10;
+        when(dbArticlesService.getAllArticlesWithTypes(days))
+                .thenReturn(new ArrayList<>(List.of(createMockResponseTypeIncluded(CUSTOM_UID_1))));
+
+        ResponseEntity<?> actual = articleApiController.getAllArticlesWithTypeIncluded(days);
+        assertEquals(HttpStatus.OK, actual.getStatusCode());
+    }
+
+    @Test
+    public void testGetAllArticlesWithTypeIncluded_fail() {
+        int days = 10;
+        when(dbArticlesService.getAllArticlesWithTypes(days))
+                .thenThrow(new RuntimeException("A problem happened"));
+        ResponseEntity<?> actual = articleApiController.getAllArticlesWithTypeIncluded(days);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, actual.getStatusCode());
+        assertEquals("Something went wrong while getting all articles", actual.getBody());
     }
 
     @Test

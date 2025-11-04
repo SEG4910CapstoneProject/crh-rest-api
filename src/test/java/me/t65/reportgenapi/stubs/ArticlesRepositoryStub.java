@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -157,6 +158,11 @@ public class ArticlesRepositoryStub implements ArticlesRepository {
 
     @Override
     public List<ArticlesEntity> findBySourceId(Integer sourceId) {
+        return List.of();
+    }
+
+    @Override
+    public List<UUID> findAllArticleIdAfterDate(Instant start_date) {
         return List.of();
     }
 }
