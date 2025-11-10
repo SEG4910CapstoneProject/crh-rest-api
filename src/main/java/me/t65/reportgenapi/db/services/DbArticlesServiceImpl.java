@@ -742,7 +742,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     }
 
     @Override
-    public boolean updateManualArticle(UUID articleId, String title, String link, String description) {
+    public boolean updateManualArticle(
+            UUID articleId, String title, String link, String description) {
         Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
         if (articleOpt.isEmpty() || articleOpt.get().getSourceId() != 99) {
             return false; // not a manual article
@@ -751,13 +752,16 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         try {
             // Check for duplicate link
             Optional<JsonArticleReportResponse> existing = getArticleByLink(link);
-            if (existing.isPresent() && !existing.get().getArticleId().equals(articleId.toString())) {
+            if (existing.isPresent()
+                    && !existing.get().getArticleId().equals(articleId.toString())) {
                 return false; // another article already uses this link
             }
 
             // Update database
-            ArticleContentEntity content = articleContentRepository.findById(articleId)
-                    .orElseThrow(() -> new RuntimeException("Article content not found"));
+            ArticleContentEntity content =
+                    articleContentRepository
+                            .findById(articleId)
+                            .orElseThrow(() -> new RuntimeException("Article content not found"));
 
             content.setName(title);
             content.setLink(link);
@@ -774,5 +778,4 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             throw new RuntimeException("Error updating manual article: " + e.getMessage());
         }
     }
-
 }

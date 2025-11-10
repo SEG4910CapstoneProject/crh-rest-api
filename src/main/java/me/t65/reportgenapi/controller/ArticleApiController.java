@@ -487,8 +487,9 @@ public class ArticleApiController {
         }
 
         try {
-            boolean updated = dbArticlesService.updateManualArticle(
-                    id, request.getTitle(), request.getLink(), request.getDescription());
+            boolean updated =
+                    dbArticlesService.updateManualArticle(
+                            id, request.getTitle(), request.getLink(), request.getDescription());
             if (!updated) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of("message", "Duplicate link provided, please try again."));
@@ -500,5 +501,4 @@ public class ArticleApiController {
                     .body(Map.of("message", "Failed to update article: " + e.getMessage()));
         }
     }
-
 }

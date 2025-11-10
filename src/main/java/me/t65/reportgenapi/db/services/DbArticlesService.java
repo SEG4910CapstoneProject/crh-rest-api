@@ -72,5 +72,4 @@ public interface DbArticlesService {
 
     /** Update an existing manually added article */
     boolean updateManualArticle(UUID articleId, String title, String link, String description);
-
 }
