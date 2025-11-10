@@ -460,4 +460,45 @@ public class ArticleApiController {
 
         return ResponseEntity.ok(Map.of("message", "Article deleted successfully."));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateManualArticle(
+            @PathVariable UUID id,
+            @RequestBody ArticleIngestRequest request,
+            @RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "You must be logged in to edit an article."));
+        }
+
+        // Validate
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Title is required."));
+        }
+        if (request.getLink() == null || request.getLink().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Link is required."));
+        }
+        try {
+            new URL(request.getLink());
+        } catch (MalformedURLException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Please provide a valid URL."));
+        }
+
+        try {
+            boolean updated =
+                    dbArticlesService.updateManualArticle(
+                            id, request.getTitle(), request.getLink(), request.getDescription());
+            if (!updated) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(Map.of("message", "Duplicate link provided, please try again."));
+            }
+            return ResponseEntity.ok(Map.of("message", "Article updated successfully."));
+        } catch (Exception e) {
+            LOGGER.error("Error updating article {}: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to update article: " + e.getMessage()));
+        }
+    }
 }

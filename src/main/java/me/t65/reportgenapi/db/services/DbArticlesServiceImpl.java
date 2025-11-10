@@ -740,4 +740,42 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         articleContentRepository.deleteById(articleId);
         return true;
     }
+
+    @Override
+    public boolean updateManualArticle(
+            UUID articleId, String title, String link, String description) {
+        Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
+        if (articleOpt.isEmpty() || articleOpt.get().getSourceId() != 99) {
+            return false; // not a manual article
+        }
+
+        try {
+            // Check for duplicate link
+            Optional<JsonArticleReportResponse> existing = getArticleByLink(link);
+            if (existing.isPresent()
+                    && !existing.get().getArticleId().equals(articleId.toString())) {
+                return false; // another article already uses this link
+            }
+
+            // Update database
+            ArticleContentEntity content =
+                    articleContentRepository
+                            .findById(articleId)
+                            .orElseThrow(() -> new RuntimeException("Article content not found"));
+
+            content.setName(title);
+            content.setLink(link);
+            content.setDescription(description);
+            articleContentRepository.save(content);
+
+            ArticlesEntity meta = articleOpt.get();
+            meta.setHashlink(NormalizeLinks.normalizeAndHashLink(link));
+            articlesRepository.save(meta);
+
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Error updating manual article {}: {}", articleId, e.getMessage());
+            throw new RuntimeException("Error updating manual article: " + e.getMessage());
+        }
+    }
 }
