@@ -743,7 +743,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
     @Override
     public boolean updateManualArticle(
-            UUID articleId, String title, String link, String description) {
+            UUID articleId, String title, String link, String description, Instant publishDate) {
         Optional<ArticlesEntity> articleOpt = articlesRepository.findById(articleId);
         if (articleOpt.isEmpty() || articleOpt.get().getSourceId() != 99) {
             return false; // not a manual article
@@ -770,6 +770,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
             ArticlesEntity meta = articleOpt.get();
             meta.setHashlink(NormalizeLinks.normalizeAndHashLink(link));
+            meta.setDatePublished(publishDate);
             articlesRepository.save(meta);
 
             return true;

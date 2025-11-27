@@ -175,12 +175,20 @@ public class ArticleApiController {
 
             // Add article manually
             UUID newArticleId = UUID.randomUUID();
+
+            // use the user's provided publish date
+            LocalDate publishDate = request.getPublishDate();
+            if (publishDate == null) {
+                publishDate = LocalDate.now(); // fallback
+            }
+            Instant publishInstant = publishDate.atStartOfDay(ZoneOffset.UTC).toInstant();
+
             dbArticlesService.addNewArticle(
                     newArticleId,
                     request.getTitle(),
                     request.getLink(),
                     request.getDescription(),
-                    Instant.now());
+                    publishInstant);
 
             LOGGER.info("Successfully ingested new article: {}", request.getLink());
             return ResponseEntity.ok(Map.of("message", "Article successfully ingested"));
@@ -487,9 +495,18 @@ public class ArticleApiController {
         }
 
         try {
+            LocalDate publishDate = request.getPublishDate();
+            if (publishDate == null) {
+                publishDate = LocalDate.now();
+            }
+            Instant publishInstant = publishDate.atStartOfDay(ZoneOffset.UTC).toInstant();
             boolean updated =
                     dbArticlesService.updateManualArticle(
-                            id, request.getTitle(), request.getLink(), request.getDescription());
+                            id,
+                            request.getTitle(),
+                            request.getLink(),
+                            request.getDescription(),
+                            publishInstant);
             if (!updated) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body(Map.of("message", "Duplicate link provided, please try again."));
