@@ -1,6 +1,7 @@
 package me.t65.reportgenapi.controller.payload;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.time.LocalDate;
 
 @Schema(description = "Request payload for ingesting a new article by URL")
@@ -22,11 +23,8 @@ public class ArticleIngestRequest {
                             + " measures.")
     private String description;
 
-    @Schema(
-            description = "Date the article was originally published",
-            example = "2024-10-05")
+    @Schema(description = "Date the article was originally published", example = "2024-10-05")
     private LocalDate publishDate;
-
 
     public String getTitle() {
         return title;
@@ -52,8 +50,11 @@ public class ArticleIngestRequest {
         this.description = description;
     }
 
-    public LocalDate getPublishDate() { return publishDate;}
+    public LocalDate getPublishDate() {
+        return publishDate;
+    }
 
-    public void setPublishDate(LocalDate publishDate) { this.publishDate = publishDate; }
-
+    public void setPublishDate(LocalDate publishDate) {
+        this.publishDate = publishDate;
+    }
 }
