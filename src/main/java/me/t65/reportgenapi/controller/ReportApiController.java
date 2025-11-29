@@ -84,7 +84,7 @@ public class ReportApiController {
         int reportId = dbReportService.getLatestReportId();
 
         if (reportId < 0) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
 
         return ResponseEntity.ok(reportId);
@@ -244,7 +244,7 @@ public class ReportApiController {
         int reportId = dbReportService.getLatestReportId();
 
         if (reportId < 0) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.noContent().build();
         }
 
         return getReportByID(reportId, format);

@@ -223,7 +223,7 @@ public class ReportApiControllerTests {
 
         ResponseEntity<?> actual = reportApiController.getLatestReport(expectedFormat);
 
-        assertEquals(HttpStatus.NOT_FOUND, actual.getStatusCode());
+        assertEquals(HttpStatus.NO_CONTENT, actual.getStatusCode());
     }
 
     @Test
