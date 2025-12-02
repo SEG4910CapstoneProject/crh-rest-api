@@ -15,12 +15,12 @@ public class EmailServiceImpl implements EmailService {
     public boolean sendReportByEmail(
             ResponseEntity<?> formattedReport, String[] recipientEmails, String title) {
         String htmlReport = (String) formattedReport.getBody();
-  
+
         for (String email : recipientEmails) {
             MultipartBodyBuilder builder = new MultipartBodyBuilder();
             builder.part("file", htmlReport.getBytes(StandardCharsets.UTF_8))
-                .filename("report.html")
-                .contentType(MediaType.TEXT_HTML);
+                    .filename("report.html")
+                    .contentType(MediaType.TEXT_HTML);
             builder.part("subject", title);
             builder.part("to", email);
             WebClient.create("http://crh-email-service:5000/send-email")
