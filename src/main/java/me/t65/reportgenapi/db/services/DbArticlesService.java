@@ -73,4 +73,8 @@ public interface DbArticlesService {
     /** Update an existing manually added article */
     boolean updateManualArticle(
             UUID articleId, String title, String link, String description, Instant publishDate);
+
+    /** Performs a vector search using manual Cosine Similarity ($cosSim) aggregation. */
+    List<me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity> findRelatedArticlesByVector(
+            List<Double> queryVector, int limit);
 }
