@@ -14,9 +14,13 @@ import me.t65.reportgenapi.utils.DateService;
 import me.t65.reportgenapi.utils.NormalizeLinks;
 import me.t65.reportgenapi.utils.StreamUtils;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +29,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -46,6 +51,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
     private final JsonArticleGenerator jsonArticleGenerator;
     private final DbEntitiesUtils dbEntitiesUtils;
     private final DateService dateService;
+    private final MongoTemplate mongoTemplate;
 
     @Autowired
     public DbArticlesServiceImpl(
@@ -61,7 +67,8 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             MonthlyArticlesRepository monthlyArticlesRepository,
             JsonArticleGenerator jsonArticleGenerator,
             DbEntitiesUtils dbEntitiesUtils,
-            DateService dateService) {
+            DateService dateService,
+            MongoTemplate mongoTemplate) {
         this.streamUtils = streamUtils;
         this.reportRepository = reportRepository;
         this.articlesRepository = articlesRepository;
@@ -75,6 +82,7 @@ public class DbArticlesServiceImpl implements DbArticlesService {
         this.jsonArticleGenerator = jsonArticleGenerator;
         this.dbEntitiesUtils = dbEntitiesUtils;
         this.dateService = dateService;
+        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -778,5 +786,57 @@ public class DbArticlesServiceImpl implements DbArticlesService {
             LOGGER.error("Error updating manual article {}: {}", articleId, e.getMessage());
             throw new RuntimeException("Error updating manual article: " + e.getMessage());
         }
+    }
+
+    /**
+     * Performs a vector search using manual Cosine Similarity ($cosSim) aggregation, since
+     * $vectorSearch is unavailable in MongoDB Community Edition.
+     *
+     * @param queryEmbedding The vector embedding of the user's query.
+     * @param topK The number of top articles to retrieve.
+     * @return A list of the top matching ArticleContentEntity objects.
+     */
+    public List<ArticleContentEntity> findRelatedArticlesByVector(
+            List<Double> queryEmbedding, int topK) {
+        // Fetch candidate articles
+        List<ArticleContentEntity> candidates =
+                mongoTemplate.find(new Query(), ArticleContentEntity.class);
+
+        // Compute cosine similarity for each candidate
+        List<Pair<ArticleContentEntity, Double>> scored =
+                candidates.stream()
+                        .map(
+                                article ->
+                                        Pair.of(
+                                                article,
+                                                cosineSimilarity(
+                                                        article.getEmbedding(), queryEmbedding)))
+                        .sorted(
+                                (p1, p2) ->
+                                        Double.compare(p2.getRight(), p1.getRight())) // descending
+                        .collect(Collectors.toList());
+
+        // Return top K articles
+        return scored.stream().limit(topK).map(Pair::getLeft).collect(Collectors.toList());
+    }
+
+    // Helper method to compute cosine similarity
+    private double cosineSimilarity(List<Double> vec1, List<Double> vec2) {
+        if (vec1 == null || vec2 == null || vec1.size() != vec2.size()) return 0.0;
+
+        double dot = 0.0;
+        double normA = 0.0;
+        double normB = 0.0;
+
+        for (int i = 0; i < vec1.size(); i++) {
+            double a = vec1.get(i);
+            double b = vec2.get(i);
+            dot += a * b;
+            normA += a * a;
+            normB += b * b;
+        }
+
+        if (normA == 0 || normB == 0) return 0.0;
+        return dot / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 }
