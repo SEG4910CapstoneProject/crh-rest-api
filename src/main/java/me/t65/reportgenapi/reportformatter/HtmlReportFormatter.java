@@ -9,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -45,13 +49,27 @@ public class HtmlReportFormatter implements ReportFormatter {
         List<ReportArticlesEntity> reportArticles = new ArrayList<>(rawReport.getReportArticles());
         reportArticles.sort(Comparator.comparingInt(ReportArticlesEntity::getArticleRank));
 
-        String result = addDashboardLink(emailReportTemplateStr);
+        Instant lastModifDate = rawReport.getReport().getLastModified();
+        String reportType = rawReport.getReport().getReportType().toString();
+
+        // String result = addDashboardLink(emailReportTemplateStr);
+        String result = addReportDetails(emailReportTemplateStr, lastModifDate, reportType);
         result = addStatsToTemplate(result);
         result =
                 addArticlesToTemplate(
                         result, categoryTemplateStr, articleTemplateStr, rawReport, reportArticles);
 
         return ResponseEntity.ok(result);
+    }
+
+    private String addReportDetails(String template, Instant lastModifDate, String reportType) {
+        ZonedDateTime zdt = lastModifDate.atZone(ZoneId.systemDefault());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d,yyyy");
+        String formattedDate = zdt.format(formatter);
+        template = template.replace("{{REPORT-LAST-MODIF-DATE}}", formattedDate);
+        return template.replace(
+                "{{REPORT-TYPE}}",
+                reportType.substring(0, 1).toUpperCase() + reportType.substring(1));
     }
 
     private String addDashboardLink(String template) {

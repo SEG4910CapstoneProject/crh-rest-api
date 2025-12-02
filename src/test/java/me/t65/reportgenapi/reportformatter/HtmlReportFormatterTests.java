@@ -32,10 +32,8 @@ public class HtmlReportFormatterTests {
 
     private static final String reportTemplate =
             """
-            <link>{{LINK-TO-DASHBOARD}}</link>
             <stat>{{STAT-LIST}}</stat>
             <categories>{{CATEGORY-LIST}}</categories>
-            <link>{{LINK-TO-DASHBOARD}}</link>
             """;
 
     private static final String categoryTemplate =
@@ -134,7 +132,6 @@ public class HtmlReportFormatterTests {
 
         String expectedResponse =
                 """
-                <link>example.com</link>
                 <stat></stat>
                 <categories><category>
                     <cat-title>News Articles</cat-title>
@@ -153,11 +150,10 @@ public class HtmlReportFormatterTests {
                 </articles>
                 </category>
                 </categories>
-                <link>example.com</link>
                 """;
 
         mockResourceTemplates();
-        when(restApiConfig.getDashboardLink()).thenReturn(expectedDashboardLink);
+        // when(restApiConfig.getDashboardLink()).thenReturn(expectedDashboardLink);
 
         ResponseEntity<?> actual = htmlReportFormatter.format(expectedReport);
         String response = (String) actual.getBody();
