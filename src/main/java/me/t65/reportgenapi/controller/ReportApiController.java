@@ -602,12 +602,15 @@ public class ReportApiController {
             })
     @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteReport(@PathVariable("id") int reportId) {
-        boolean deleted = dbReportService.deleteReport(reportId);
+        boolean deletedReportArticle = dbArticlesService.deleteReportArticles(reportId);
+        if (deletedReportArticle) {
+            boolean deleted = dbReportService.deleteReport(reportId);
 
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
+            if (!deleted) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(Map.of("message", "report deleted successfully"));
         }
-
         return ResponseEntity.noContent().build();
     }
 
