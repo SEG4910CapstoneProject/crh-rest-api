@@ -18,6 +18,8 @@ import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.db.services.DbReportService;
 import me.t65.reportgenapi.db.services.DbStatsService;
+import me.t65.reportgenapi.db.services.DbUserService;
+import me.t65.reportgenapi.db.services.EmailService;
 import me.t65.reportgenapi.reportformatter.RawReport;
 import me.t65.reportgenapi.reportformatter.ReportFormatter;
 
@@ -32,6 +34,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,17 +58,23 @@ public class ReportApiController {
     private final DbStatsService dbStatsService;
     private final DbArticlesService dbArticlesService;
     private final Map<String, ReportFormatter> reportFormatterMap;
+    private final EmailService emailService;
+    private final DbUserService userService;
 
     @Autowired
     public ReportApiController(
             DbReportService dbReportService,
             DbStatsService dbStatsService,
             DbArticlesService dbArticlesService,
-            @Qualifier("formatMapper") Map<String, ReportFormatter> reportFormatterMap) {
+            @Qualifier("formatMapper") Map<String, ReportFormatter> reportFormatterMap,
+            EmailService emailService,
+            DbUserService userService) {
         this.dbReportService = dbReportService;
         this.dbStatsService = dbStatsService;
         this.dbArticlesService = dbArticlesService;
         this.reportFormatterMap = reportFormatterMap;
+        this.emailService = emailService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -266,7 +277,7 @@ public class ReportApiController {
                     int reportId,
             @Parameter(description = "The article IDs", required = true) @RequestBody
                     String[] articleIds) {
-
+        LOGGER.info("adding many articles to report number {}", reportId);
         boolean check = dbArticlesService.addArticlesToReport(reportId, articleIds);
         if (check) {
             return ResponseEntity.noContent().build();
@@ -695,5 +706,62 @@ public class ReportApiController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=preview_report.pdf")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdfBytes);
+    }
+
+    @PostMapping("/{id}/sendReportEmail")
+    public ResponseEntity<?> sendReportEmail(
+            @Parameter(
+                            description = "The report id that we want to send as an email",
+                            required = true)
+                    @PathVariable
+                    int id,
+            @Parameter(
+                            description = "The email template format to use",
+                            required = false,
+                            schema =
+                                    @Schema(
+                                            allowableValues = {"restricted,nonRestricted"},
+                                            defaultValue = "nonRestricted"))
+                    @RequestParam(defaultValue = "nonRestricted")
+                    String emailTemplate,
+            @Parameter(description = "the recipient of the email", required = true) @RequestParam
+                    String[] recipientList) {
+        if (recipientList.length == 0) {
+            return ResponseEntity.badRequest().build();
+        }
+        Optional<RawReport> rawReport = dbReportService.getRawReport(id);
+
+        if (rawReport.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        ReportFormatter formatter = reportFormatterMap.get("html");
+        ResponseEntity<?> formattedReport = formatter.format(rawReport.get());
+        String reportType = rawReport.get().getReport().getReportType().toString();
+        String email_title =
+                reportType.substring(0, 1).toUpperCase() + reportType.substring(1) + " Report --- ";
+        Instant lastModifDate = rawReport.get().getReport().getLastModified();
+        ZonedDateTime zdt = lastModifDate.atZone(ZoneId.systemDefault());
+        DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("MMMM d,yyyy");
+        String formattedDate = zdt.format(formatterDate);
+        email_title += formattedDate;
+        // LOGGER.info("the recipient list length is {}",recipientList.length);
+        // LOGGER.info("first element is: {}",recipientList[0]);
+
+        if (recipientList.length == 1 && "all".equalsIgnoreCase(recipientList[0])) {
+            // get all emails, an admin sends to everybody
+            List<String> all_users = this.userService.getAllUserEmails();
+            recipientList = all_users.toArray(new String[0]);
+        }
+
+        boolean emailSent =
+                emailService.sendReportByEmail(formattedReport, recipientList, email_title);
+        if (emailSent) {
+            LOGGER.info("the report {} was successfully sent by email", id);
+        } else {
+            return ResponseEntity.internalServerError().build();
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Email sent"));
     }
 }
