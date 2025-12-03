@@ -182,4 +182,17 @@ public class ReportArticlesRepositoryStub implements ReportArticlesRepository {
             Collection<Integer> reportIds, boolean suggestion) {
         return null;
     }
+
+    @Override
+    public void deleteAllByReportId(Integer reportId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'deleteAllByReportId'");
+    }
+
+    @Override
+    public boolean existsByReportArticlesIdReportId(int id) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException(
+                "Unimplemented method 'existsByReportArticlesIdReportId'");
+    }
 }

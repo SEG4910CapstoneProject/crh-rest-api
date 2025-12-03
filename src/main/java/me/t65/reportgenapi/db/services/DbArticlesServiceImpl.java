@@ -29,7 +29,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -838,5 +837,19 @@ public class DbArticlesServiceImpl implements DbArticlesService {
 
         if (normA == 0 || normB == 0) return 0.0;
         return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+    }
+
+    // delete articles related to a report in the report article mappings
+    public boolean deleteReportArticles(int reportId) {
+        try {
+            if (reportArticlesRepository.existsByReportArticlesIdReportId(reportId)) {
+                reportArticlesRepository.deleteAllByReportId(reportId);
+            }
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("an exception occured in deleteReportArticles: {}", e.toString());
+
+            return false;
+        }
     }
 }

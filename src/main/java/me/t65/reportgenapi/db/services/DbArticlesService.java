@@ -77,4 +77,6 @@ public interface DbArticlesService {
     /** Performs a vector search using manual Cosine Similarity ($cosSim) aggregation. */
     List<me.t65.reportgenapi.db.mongo.entities.ArticleContentEntity> findRelatedArticlesByVector(
             List<Double> queryVector, int limit);
+
+    boolean deleteReportArticles(int reportId);
 }
