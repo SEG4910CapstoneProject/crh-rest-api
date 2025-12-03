@@ -18,6 +18,7 @@ import me.t65.reportgenapi.db.postgres.entities.ReportType;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.db.services.DbReportService;
 import me.t65.reportgenapi.db.services.DbStatsService;
+import me.t65.reportgenapi.db.services.DbUserService;
 import me.t65.reportgenapi.db.services.EmailService;
 import me.t65.reportgenapi.reportformatter.RawReport;
 import me.t65.reportgenapi.reportformatter.ReportFormatter;
@@ -58,6 +59,7 @@ public class ReportApiController {
     private final DbArticlesService dbArticlesService;
     private final Map<String, ReportFormatter> reportFormatterMap;
     private final EmailService emailService;
+    private final DbUserService userService;
 
     @Autowired
     public ReportApiController(
@@ -65,12 +67,14 @@ public class ReportApiController {
             DbStatsService dbStatsService,
             DbArticlesService dbArticlesService,
             @Qualifier("formatMapper") Map<String, ReportFormatter> reportFormatterMap,
-            EmailService emailService) {
+            EmailService emailService,
+            DbUserService userService) {
         this.dbReportService = dbReportService;
         this.dbStatsService = dbStatsService;
         this.dbArticlesService = dbArticlesService;
         this.reportFormatterMap = reportFormatterMap;
         this.emailService = emailService;
+        this.userService = userService;
     }
 
     @Operation(
@@ -741,6 +745,14 @@ public class ReportApiController {
         DateTimeFormatter formatterDate = DateTimeFormatter.ofPattern("MMMM d,yyyy");
         String formattedDate = zdt.format(formatterDate);
         email_title += formattedDate;
+        // LOGGER.info("the recipient list length is {}",recipientList.length);
+        // LOGGER.info("first element is: {}",recipientList[0]);
+
+        if (recipientList.length == 1 && "all".equalsIgnoreCase(recipientList[0])) {
+            // get all emails, an admin sends to everybody
+            List<String> all_users = this.userService.getAllUserEmails();
+            recipientList = all_users.toArray(new String[0]);
+        }
 
         boolean emailSent =
                 emailService.sendReportByEmail(formattedReport, recipientList, email_title);
@@ -750,6 +762,6 @@ public class ReportApiController {
             return ResponseEntity.internalServerError().build();
         }
 
-        return ResponseEntity.ok("Email sent");
+        return ResponseEntity.ok(Map.of("message", "Email sent"));
     }
 }

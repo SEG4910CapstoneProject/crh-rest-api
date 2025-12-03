@@ -9,6 +9,7 @@ import me.t65.reportgenapi.controller.payload.*;
 import me.t65.reportgenapi.db.services.DbArticlesService;
 import me.t65.reportgenapi.db.services.DbReportService;
 import me.t65.reportgenapi.db.services.DbStatsService;
+import me.t65.reportgenapi.db.services.DbUserService;
 import me.t65.reportgenapi.db.services.EmailService;
 import me.t65.reportgenapi.reportformatter.RawReport;
 import me.t65.reportgenapi.reportformatter.ReportFormatter;
@@ -33,6 +34,7 @@ public class ReportApiControllerTests {
     @Mock private DbArticlesService dbArticlesService;
     @Mock private DbStatsService dbStatsService;
     @Mock private EmailService emailService;
+    @Mock private DbUserService userService;
 
     private Map<String, ReportFormatter> reportFormatterMap;
 
@@ -47,7 +49,8 @@ public class ReportApiControllerTests {
                         dbStatsService,
                         dbArticlesService,
                         reportFormatterMap,
-                        emailService);
+                        emailService,
+                        userService);
     }
 
     // @Test

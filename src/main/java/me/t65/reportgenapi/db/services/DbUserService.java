@@ -2,6 +2,7 @@ package me.t65.reportgenapi.db.services;
 
 import me.t65.reportgenapi.db.postgres.entities.UserEntity;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface DbUserService {
@@ -10,4 +11,6 @@ public interface DbUserService {
     Optional<UserEntity> login(String email, String rawPassword);
 
     Optional<UserEntity> getUserByEmail(String email);
+
+    List<String> getAllUserEmails();
 }
